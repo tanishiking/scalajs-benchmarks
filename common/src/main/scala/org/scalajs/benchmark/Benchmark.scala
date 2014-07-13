@@ -11,30 +11,6 @@ package org.scalajs.benchmark
 import scala.compat.Platform
 import scala.scalajs.js
 
-object Benchmark {
-  val benchmarks = js.Array[Benchmark]()
-  val benchmarkApps = js.Array[BenchmarkApp]()
-
-  val global = js.Dynamic.global.asInstanceOf[js.Dictionary[js.Any]]
-  global("runScalaJSBenchmarks") = runBenchmarks _
-  global("initScalaJSBenchmarkApps") = initBenchmarkApps _
-
-  def add(benchmark: Benchmark) {
-    benchmarks.push(benchmark)
-    if (benchmark.isInstanceOf[BenchmarkApp]) {
-      benchmarkApps.push(benchmark.asInstanceOf[BenchmarkApp])
-    }
-  }
-
-  def runBenchmarks() {
-    benchmarks.foreach { _.report }
-  }
-
-  def initBenchmarkApps() {
-    benchmarkApps.foreach { _.init }
-  }
-}
-
 /** `Benchmark` base class based on the deprecated scala.testing.Benchmark.
  *
  *  The `run` method has to be defined by the user, who will perform the
@@ -45,9 +21,9 @@ object Benchmark {
  *
  *  @author Iulian Dragos, Burak Emir
  */
-abstract class Benchmark {
+abstract class Benchmark extends js.JSApp {
 
-  Benchmark.add(this)
+  def main(): Unit = report()
 
   /** This method should be implemented by the concrete benchmark.
    *  It will be called by the benchmarking code for a number of times.

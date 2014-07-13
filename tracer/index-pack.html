@@ -6,7 +6,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
   </head>
 
-  <body onload="initScalaJSBenchmarkApps()">
+  <body>
     <canvas id="canvasContext" width="100" height="100" style="border:1px solid black"></canvas>
 
     <div>
@@ -35,8 +35,12 @@
       Time (ms): <span id="time"></span>
     </div>
 
-    <script type="text/javascript" src="./target/scala-2.10/tracer-extdeps.js"></script>
-    <script type="text/javascript" src="./target/scala-2.10/tracer-intdeps.js"></script>
-    <script type="text/javascript" src="./target/scala-2.10/tracer.js"></script>
+    <script type="text/javascript" src="./target/scala-2.11/corejslibs.js"></script>
+    <script type="text/javascript" src="./target/scala-2.11/tracer-pack-extdeps.js"></script>
+    <script type="text/javascript" src="./target/scala-2.11/tracer-pack-intdeps.js"></script>
+    <script type="text/javascript" src="./target/scala-2.11/tracer-pack-app.js"></script>
+    <script type="text/javascript">
+      org.scalajs.benchmark.tracer.Tracer().init();
+    </script>
   </body>
 </html>

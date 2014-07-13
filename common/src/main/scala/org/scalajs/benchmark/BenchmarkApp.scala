@@ -9,12 +9,14 @@
 package org.scalajs.benchmark
 
 import scala.scalajs.js
+import js.annotation.JSExport
 import org.scalajs.benchmark.dom._
 
 trait BenchmarkApp {
 
   def onClick(): Unit
 
+  @JSExport
   def init() {
     val button = $("run")
 
@@ -31,7 +33,7 @@ trait BenchmarkApp {
     if (timeElement != null) {
       val elapsedTime = after.getTime() - before.getTime()
 
-      timeElement.innerHTML = elapsedTime.toString(10)
+      timeElement.innerHTML = elapsedTime.toString()
     }
   }
 
