@@ -322,9 +322,9 @@ class EditConstraint(v: Variable, str: Strength)(implicit planner: Planner) exte
 }
 
 object Direction {
-  val NONE = 1
-  val FORWARD = 2
-  val BACKWARD = 0
+  final val NONE = 1
+  final val FORWARD = 2
+  final val BACKWARD = 0
 }
 
 /**
