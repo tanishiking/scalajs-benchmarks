@@ -16,35 +16,36 @@
 
 package org.scalajs.benchmark.tracer
 
+@inline
 class Vector(val x: Double, val y: Double, val z: Double) {
 
-  def normalize: Vector = {
+  @inline def normalize: Vector = {
     val m = this.magnitude
     new Vector(x / m, y / m, z / m)
   }
 
-  def magnitude: Double =
+  @inline def magnitude: Double =
     math.sqrt((x * x) + (y * y) + (z * z))
 
-  def cross(that: Vector): Vector = {
+  @inline def cross(that: Vector): Vector = {
     new Vector(-this.z * that.y + this.y * that.z,
                this.z * that.x - this.x * that.z,
                -this.y * that.x + this.x * that.y)
   }
 
-  def dot(that: Vector): Double =
+  @inline def dot(that: Vector): Double =
     this.x * that.x + this.y * that.y + this.z * that.z
 
-  def +(that: Vector): Vector =
+  @inline def +(that: Vector): Vector =
     new Vector(that.x + x, that.y + y, that.z + z)
 
-  def -(that: Vector): Vector =
+  @inline def -(that: Vector): Vector =
     new Vector(x - that.x, y - that.y, z - that.z)
 
-  def *(that: Vector): Vector =
+  @inline def *(that: Vector): Vector =
     new Vector(x * that.x, y * that.y, z * that.z)
 
-  def multiplyScalar(w: Double): Vector =
+  @inline def multiplyScalar(w: Double): Vector =
     new Vector(x * w, y * w, z * w)
 
   override def toString =
