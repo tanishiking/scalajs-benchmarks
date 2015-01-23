@@ -151,20 +151,20 @@ sealed class Strength(val value: Int, val name: String) {
   def nextWeaker() = Strength.NEXT_WEAKER(value)
 }
 
-case object REQUIRED        extends Strength(0, "required")
-case object STRONG_REFERRED extends Strength(1, "strongPreferred")
-case object PREFERRED       extends Strength(2, "preferred")
-case object STRONG_DEFAULT  extends Strength(3, "strongDefault")
-case object NORMAL          extends Strength(4, "normal")
-case object WEAK_DEFAULT    extends Strength(5, "weakDefault")
-case object WEAKEST         extends Strength(6, "weakest")
+case object REQUIRED         extends Strength(0, "required")
+case object STRONG_PREFERRED extends Strength(1, "strongPreferred")
+case object PREFERRED        extends Strength(2, "preferred")
+case object STRONG_DEFAULT   extends Strength(3, "strongDefault")
+case object NORMAL           extends Strength(4, "normal")
+case object WEAK_DEFAULT     extends Strength(5, "weakDefault")
+case object WEAKEST          extends Strength(6, "weakest")
 
 // Compile time computed constants.
 object Strength {
 
   val NEXT_WEAKER = List(
-    WEAKEST, WEAK_DEFAULT, NORMAL, STRONG_DEFAULT,
-    PREFERRED, STRONG_REFERRED)
+    STRONG_PREFERRED, PREFERRED, STRONG_DEFAULT,
+    NORMAL, WEAK_DEFAULT, WEAKEST)
 
   def stronger(s1: Strength, s2: Strength): Boolean =
     s1.value < s2.value

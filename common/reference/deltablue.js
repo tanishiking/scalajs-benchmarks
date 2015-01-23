@@ -116,12 +116,12 @@ Strength.strongest = function (s1, s2) {
 
 Strength.prototype.nextWeaker = function () {
   switch (this.strengthValue) {
-    case 0: return Strength.WEAKEST;
-    case 1: return Strength.WEAK_DEFAULT;
-    case 2: return Strength.NORMAL;
-    case 3: return Strength.STRONG_DEFAULT;
-    case 4: return Strength.PREFERRED;
-    case 5: return Strength.REQUIRED;
+    case 0: return Strength.STONG_PREFERRED;
+    case 1: return Strength.PREFERRED;
+    case 2: return Strength.STRONG_DEFAULT;
+    case 3: return Strength.NORMAL;
+    case 4: return Strength.WEAK_DEFAULT;
+    case 5: return Strength.WEAKEST;
   }
 }
 
