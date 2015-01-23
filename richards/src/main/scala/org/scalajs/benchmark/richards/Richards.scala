@@ -386,12 +386,10 @@ class WorkerTask(scheduler: Scheduler, var v1: Int, var v2: Int) extends Task(sc
       }
       packet.id = v1
       packet.a1 = 0
-      var i = 0
-      while (i < Richards.DATA_SIZE) {
+      for (i <- 0 until Richards.DATA_SIZE) {
         v2 += 1
         if (v2 > 26) v2 = 1
         packet.a2(i) = v2
-        i += 1
       }
       scheduler.queue(packet)
     }
