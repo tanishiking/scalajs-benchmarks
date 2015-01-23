@@ -148,7 +148,14 @@ object DeltaBlue extends org.scalajs.benchmark.Benchmark {
  * this class, so == can be used for value comparison.
  */
 sealed class Strength(val value: Int, val name: String) {
-  def nextWeaker() = Strength.NEXT_WEAKER(value)
+  def nextWeaker = value match {
+    case 0 => STRONG_PREFERRED
+    case 1 => PREFERRED
+    case 2 => STRONG_DEFAULT
+    case 3 => NORMAL
+    case 4 => WEAK_DEFAULT
+    case 5 => WEAKEST
+  }
 }
 
 case object REQUIRED         extends Strength(0, "required")
@@ -161,10 +168,6 @@ case object WEAKEST          extends Strength(6, "weakest")
 
 // Compile time computed constants.
 object Strength {
-
-  val NEXT_WEAKER = List(
-    STRONG_PREFERRED, PREFERRED, STRONG_DEFAULT,
-    NORMAL, WEAK_DEFAULT, WEAKEST)
 
   def stronger(s1: Strength, s2: Strength): Boolean =
     s1.value < s2.value
@@ -563,7 +566,7 @@ class Planner {
       for (u <- unsatisfied) {
         if (u.strength == strength) incrementalAdd(u)
       }
-      strength = strength.nextWeaker()
+      strength = strength.nextWeaker
     } while (strength != WEAKEST)
   }
 
