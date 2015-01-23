@@ -14,7 +14,7 @@
 RUN_DIR="$(dirname "$0")"
 ROOT_DIR="./$(git rev-parse --show-cdup)"
 ENGINES="d8 node"
-MODES="pack fastopt fullopt js"
+MODES="fastopt fullopt js"
 SEP='
 '
 
@@ -95,11 +95,6 @@ run_benchmark_mode()
 				    "$out_dir/$benchmark-launcher.js" ;;
 		fastopt)	cat "$out_dir/$benchmark-fastopt.js" \
 				    "$out_dir/$benchmark-launcher.js" ;;
-		pack)		cat "$out_dir/corejslibs.js" \
-				    "$out_dir/$benchmark-pack-extdeps.js" \
-				    "$out_dir/$benchmark-pack-intdeps.js" \
-				    "$out_dir/$benchmark-pack-app.js" \
-				    "$out_dir/$benchmark-launcher.js" ;;
 		*)		die "Unknown mode: $mode"
 		esac
 		cat "$lib_dir/start-benchmark.js"
@@ -122,7 +117,7 @@ run_benchmark()
 		arg="$1"; shift
 
 		case "$arg" in
-		pack|fastopt|fullopt|js)
+		fastopt|fullopt|js)
 			modes="$modes$SEP$arg" ;;
 		d8|node|phantomjs)
 			engines="$engines$SEP$arg" ;;
@@ -134,7 +129,7 @@ run_benchmark()
 	test -z "$engines" && engines="d8" ||
 		engines="$(echo "$engines" | sort -u)"
 
-	test -z "$modes" && modes="pack" ||
+	test -z "$modes" && modes="fullopt" ||
 		modes="$(echo "$modes" | sort -u)"
 
 	detect_engines "$engines"

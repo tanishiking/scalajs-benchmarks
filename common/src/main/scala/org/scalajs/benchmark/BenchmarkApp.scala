@@ -41,7 +41,7 @@ trait BenchmarkApp {
     js.Dynamic.global.document.getElementById(id).asInstanceOf[DOMElement]
 
   def int(id: String): Int =
-    js.parseInt($(id).asInstanceOf[HTMLInputElement].value).toInt
+    $(id).asInstanceOf[HTMLInputElement].value.toString.toInt
 
   def bool(id: String): Boolean =
     $(id).asInstanceOf[HTMLCheckboxElement].checked.toString == "true"
