@@ -10,6 +10,7 @@ package org.scalajs.benchmark.dom
 
 import scala.scalajs.js
 
+@js.native
 trait DOMElement extends js.Object {
   var innerHTML: String = js.native
 
@@ -17,20 +18,24 @@ trait DOMElement extends js.Object {
   var onclick: js.Function0[_] = js.native
 }
 
+@js.native
 trait HTMLInputElement extends js.Object {
   var value: String = js.native
 }
 
+@js.native
 trait HTMLCheckboxElement extends js.Object {
   var checked: Boolean = js.native
 }
 
+@js.native
 trait HTMLCanvasElement extends DOMElement {
   def getContext(kind: String): js.Any = js.native // depends on the kind
   var width: Double = js.native
   var height: Double = js.native
 }
 
+@js.native
 trait CanvasRenderingContext2D extends js.Object {
   val canvas: HTMLCanvasElement = js.native
 
