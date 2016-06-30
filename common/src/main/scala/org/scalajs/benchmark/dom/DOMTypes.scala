@@ -11,7 +11,22 @@ package org.scalajs.benchmark.dom
 import scala.scalajs.js
 
 @js.native
+object DOM extends js.GlobalScope {
+  val document: DOMDocument = js.native
+}
+
+@js.native
+trait DOMDocument extends js.Object {
+  var title: String = js.native
+
+  def body: DOMElement = js.native
+  def getElementById(id: String): DOMElement = js.native
+  def createElement(tag: String): DOMElement = js.native
+}
+
+@js.native
 trait DOMElement extends js.Object {
+  var textContent: String = js.native
   var innerHTML: String = js.native
 
   def appendChild(child: DOMElement): Unit = js.native
@@ -26,6 +41,11 @@ trait HTMLInputElement extends js.Object {
 @js.native
 trait HTMLCheckboxElement extends js.Object {
   var checked: Boolean = js.native
+}
+
+@js.native
+trait HTMLButtonElement extends DOMElement {
+  var enabled: Boolean = js.native
 }
 
 @js.native
