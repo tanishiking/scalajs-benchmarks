@@ -74,13 +74,13 @@ abstract class Benchmark {
   def prefix: String = getClass().getName()
 
   def warmUp(): Unit = {
-    runBenchmark(1000, 5)
+    runBenchmark(10000, 10)
   }
 
   def report(): String = {
     setUp()
     warmUp()
-    val avg = runBenchmark(2000, 5)
+    val avg = runBenchmark(20000, 50)
     tearDown()
 
     s"$avg us"

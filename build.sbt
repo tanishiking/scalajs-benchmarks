@@ -15,6 +15,10 @@ val defaultSettings: Seq[Setting[_]] = projectSettings ++ Seq(
   )
 )
 
+val defaultJVMSettings: Seq[Setting[_]] = Seq(
+  fork in run := true
+)
+
 val defaultJSSettings: Seq[Setting[_]] = Seq(
   scalaJSSemantics ~= { _.withAsInstanceOfs(Unchecked) },
   persistLauncher := true
@@ -41,6 +45,7 @@ lazy val commonJS = common.js
 
 lazy val deltablue = crossProject.crossType(CrossType.Pure).
   settings(defaultSettings: _*).
+  jvmSettings(defaultJVMSettings: _*).
   jsSettings(defaultJSSettings: _*).
   settings(
     name := "Scala.js Benchmarks - DeltaBlue",
@@ -53,6 +58,7 @@ lazy val deltablueJS = deltablue.js
 
 lazy val richards = crossProject.crossType(CrossType.Pure).
   settings(defaultSettings: _*).
+  jvmSettings(defaultJVMSettings: _*).
   jsSettings(defaultJSSettings: _*).
   settings(
     name := "Scala.js Benchmarks - Richards",
@@ -65,6 +71,7 @@ lazy val richardsJS = richards.js
 
 lazy val sudoku = crossProject.crossType(CrossType.Pure).
   settings(defaultSettings: _*).
+  jvmSettings(defaultJVMSettings: _*).
   jsSettings(defaultJSSettings: _*).
   settings(
     name := "Scala.js Benchmarks - Sudoku",
@@ -77,6 +84,7 @@ lazy val sudokuJS = sudoku.js
 
 lazy val tracer = crossProject.
   settings(defaultSettings: _*).
+  jvmSettings(defaultJVMSettings: _*).
   jsSettings(defaultJSSettings: _*).
   settings(
     name := "Scala.js Benchmarks - Tracer",
@@ -89,6 +97,7 @@ lazy val tracerJS = tracer.js
 
 lazy val sha512 = crossProject.crossType(CrossType.Pure).
   settings(defaultSettings: _*).
+  jvmSettings(defaultJVMSettings: _*).
   jsSettings(defaultJSSettings: _*).
   settings(
     name := "Scala.js Benchmarks - SHA-512",
