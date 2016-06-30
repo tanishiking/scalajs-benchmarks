@@ -16,7 +16,7 @@ val defaultSettings: Seq[Setting[_]] = projectSettings ++ Seq(
 )
 
 val defaultJVMSettings: Seq[Setting[_]] = Seq(
-  fork in run := true
+  fork in run := !scala.sys.env.get("TRAVIS").exists(_ == "true")
 )
 
 val defaultJSSettings: Seq[Setting[_]] = Seq(

@@ -1,0 +1,12 @@
+sudo: false
+language: scala
+script:
+  - sbt ++$TRAVIS_SCALA_VERSION richardsJVM/run richardsJS/run 'set scalaJSStage in Global := FullOptStage' richardsJS/run
+  - sbt ++$TRAVIS_SCALA_VERSION tracerJVM/run tracerJS/run 'set scalaJSStage in Global := FullOptStage' tracerJS/run
+  - sbt ++$TRAVIS_SCALA_VERSION deltablueJVM/run deltablueJS/run 'set scalaJSStage in Global := FullOptStage' deltablueJS/run
+  - sbt ++$TRAVIS_SCALA_VERSION sudokuJVM/run sudokuJS/run 'set scalaJSStage in Global := FullOptStage' sudokuJS/run
+  - sbt ++$TRAVIS_SCALA_VERSION sha512JVM/run sha512JS/run 'set scalaJSStage in Global := FullOptStage' sha512JS/run
+scala:
+  - 2.11.8
+jdk:
+  - oraclejdk8
