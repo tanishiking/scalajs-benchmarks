@@ -78,7 +78,9 @@ detect_engines()
 run_benchmark_mode()
 {
 	engine="$1" benchmark="$2" mode="$3"
-	out_dir="$ROOT_DIR/$benchmark/target/scala-2.11"
+	test -d "$ROOT_DIR/$benchmark/.js" && \
+	  out_dir="$ROOT_DIR/$benchmark/.js/target/scala-2.11" || \
+	  out_dir="$ROOT_DIR/$benchmark/js/target/scala-2.11"
 	lib_dir="$ROOT_DIR/common"
 	js="$out_dir/$benchmark.$engine-$mode.js"
 	engine_bin=$(eval echo \$"${engine}_bin")

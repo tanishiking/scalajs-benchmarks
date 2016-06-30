@@ -17,7 +17,6 @@
 package org.scalajs.benchmark.tracer
 
 import org.scalajs.benchmark.dom._
-import scala.scalajs.js
 
 case class EngineConfiguration(
   imageWidth: Int = 100,

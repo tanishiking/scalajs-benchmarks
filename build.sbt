@@ -1,85 +1,100 @@
 import org.scalajs.core.tools.sem.CheckedBehavior.Unchecked
 
-val projectSettings = Seq(
+val projectSettings: Seq[Setting[_]] = Seq(
   organization := "scalajs-benchmarks",
   version := "0.1-SNAPSHOT"
 )
 
-val defaultSettings = projectSettings ++ Seq(
+val defaultSettings: Seq[Setting[_]] = projectSettings ++ Seq(
   scalaVersion := "2.11.8",
   scalacOptions ++= Seq(
       "-deprecation",
       "-unchecked",
       "-feature",
       "-encoding", "utf8"
-  ),
+  )
+)
+
+val defaultJSSettings: Seq[Setting[_]] = Seq(
   scalaJSSemantics ~= { _.withAsInstanceOfs(Unchecked) },
   persistLauncher := true
 )
+
+scalaJSUseRhino in Global := false
 
 lazy val parent = project.in(file(".")).
   settings(projectSettings: _*).
   settings(
     name := "Scala.js Benchmarks",
     publishArtifact in Compile := false
-  ).aggregate(
-    common,
-    deltablue,
-    richards,
-    sudoku,
-    tracer
   )
 
-lazy val common = project.
-  enablePlugins(ScalaJSPlugin).
+lazy val common = crossProject.
   settings(defaultSettings: _*).
   settings(
-    name := s"Scala.js Benchmarks - Common",
-    moduleName := "common",
-    persistLauncher := false
+    name := "Scala.js Benchmarks - Common",
+    moduleName := "common"
   )
 
-lazy val deltablue = project.
-  enablePlugins(ScalaJSPlugin).
+lazy val commonJVM = common.jvm
+lazy val commonJS = common.js
+
+lazy val deltablue = crossProject.crossType(CrossType.Pure).
   settings(defaultSettings: _*).
+  jsSettings(defaultJSSettings: _*).
   settings(
-    name := s"Scala.js Benchmarks - DeltaBlue",
+    name := "Scala.js Benchmarks - DeltaBlue",
     moduleName := "deltablue"
   ).
   dependsOn(common)
 
-lazy val richards = project.
-  enablePlugins(ScalaJSPlugin).
+lazy val deltablueJVM = deltablue.jvm
+lazy val deltablueJS = deltablue.js
+
+lazy val richards = crossProject.crossType(CrossType.Pure).
   settings(defaultSettings: _*).
+  jsSettings(defaultJSSettings: _*).
   settings(
-    name := s"Scala.js Benchmarks - Richards",
+    name := "Scala.js Benchmarks - Richards",
     moduleName := "richards"
   ).
   dependsOn(common)
 
-lazy val sudoku = project.
-  enablePlugins(ScalaJSPlugin).
+lazy val richardsJVM = richards.jvm
+lazy val richardsJS = richards.js
+
+lazy val sudoku = crossProject.crossType(CrossType.Pure).
   settings(defaultSettings: _*).
+  jsSettings(defaultJSSettings: _*).
   settings(
-    name := s"Scala.js Benchmarks - Sudoku",
+    name := "Scala.js Benchmarks - Sudoku",
     moduleName := "sudoku"
   ).
   dependsOn(common)
 
-lazy val tracer = project.
-  enablePlugins(ScalaJSPlugin).
+lazy val sudokuJVM = sudoku.jvm
+lazy val sudokuJS = sudoku.js
+
+lazy val tracer = crossProject.
   settings(defaultSettings: _*).
+  jsSettings(defaultJSSettings: _*).
   settings(
-    name := s"Scala.js Benchmarks - Tracer",
+    name := "Scala.js Benchmarks - Tracer",
     moduleName := "tracer"
   ).
   dependsOn(common)
 
-lazy val sha512 = project.
-  enablePlugins(ScalaJSPlugin).
+lazy val tracerJVM = tracer.jvm
+lazy val tracerJS = tracer.js
+
+lazy val sha512 = crossProject.crossType(CrossType.Pure).
   settings(defaultSettings: _*).
+  jsSettings(defaultJSSettings: _*).
   settings(
-    name := s"Scala.js Benchmarks - SHA-512",
+    name := "Scala.js Benchmarks - SHA-512",
     moduleName := "sha512"
   ).
   dependsOn(common)
+
+lazy val sha512JVM = sha512.jvm
+lazy val sha512JS = sha512.js

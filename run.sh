@@ -10,7 +10,7 @@ for benchmark in $(find . -mindepth 2 -name "run.sh" | grep -vE "$EXCLUDE"); do
 	name="$(basename "$(dirname "$benchmark")")"
 	echo
 	info "$name [all] sbt"
-	TIME="%E" time sbt "$name/fastOptJS" "$name/fullOptJS" >/dev/null
+	TIME="%E" time sbt "${name}JS/fastOptJS" "${name}JS/fullOptJS" >/dev/null
 
 	for mode in $MODES; do
 		for engine in $ENGINES; do
