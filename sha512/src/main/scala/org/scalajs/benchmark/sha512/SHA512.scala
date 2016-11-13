@@ -322,11 +322,25 @@ class SHA512Context(val is384: Boolean) {
 
     val W = new Array[Long](80)
 
-    for (i <- 0 until 16)
-      W(i) = getUInt64BE(data, start + (i << 3))
+    //for (i <- 0 until 16)
+    //  W(i) = getUInt64BE(data, start + (i << 3))
+    {
+      var i = 0
+      while (i != 16) {
+        W(i) = getUInt64BE(data, start + (i << 3))
+        i += 1
+      }
+    }
 
-    for (i <- 16 until 80)
-      W(i) = S1(W(i - 2)) + W(i - 7) + S0(W(i - 15)) + W(i - 16)
+    //for (i <- 16 until 80)
+    //  W(i) = S1(W(i - 2)) + W(i - 7) + S0(W(i - 15)) + W(i - 16)
+    {
+      var i = 16
+      while (i != 80) {
+        W(i) = S1(W(i - 2)) + W(i - 7) + S0(W(i - 15)) + W(i - 16)
+        i += 1
+      }
+    }
 
     var A = state(0)
     var B = state(1)
