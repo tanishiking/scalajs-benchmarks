@@ -118,3 +118,19 @@ lazy val sha512Int = crossProject.crossType(CrossType.Pure).
 
 lazy val sha512IntJVM = sha512Int.jvm
 lazy val sha512IntJS = sha512Int.js
+
+lazy val longMicro = crossProject.crossType(CrossType.Pure).
+  settings(defaultSettings: _*).
+  jvmSettings(defaultJVMSettings: _*).
+  jsSettings(defaultJSSettings: _*).
+  settings(
+    name := "Scala.js Benchmarks - LongMicro",
+    moduleName := "longmicro"
+  ).
+  jsSettings(
+    persistLauncher := false
+  ).
+  dependsOn(common)
+
+lazy val longMicroJVM = longMicro.jvm
+lazy val longMicroJS = longMicro.js
