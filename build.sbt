@@ -24,8 +24,6 @@ val defaultJSSettings: Seq[Setting[_]] = Seq(
   persistLauncher := true
 )
 
-scalaJSUseRhino in Global := false
-
 lazy val parent = project.in(file(".")).
   settings(projectSettings: _*).
   settings(
