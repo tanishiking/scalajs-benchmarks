@@ -105,3 +105,16 @@ lazy val sha512 = crossProject.crossType(CrossType.Pure).
 
 lazy val sha512JVM = sha512.jvm
 lazy val sha512JS = sha512.js
+
+lazy val sha512Int = crossProject.crossType(CrossType.Pure).
+  settings(defaultSettings: _*).
+  jvmSettings(defaultJVMSettings: _*).
+  jsSettings(defaultJSSettings: _*).
+  settings(
+    name := "Scala.js Benchmarks - SHA-512-Int",
+    moduleName := "sha512Int"
+  ).
+  dependsOn(common)
+
+lazy val sha512IntJVM = sha512Int.jvm
+lazy val sha512IntJS = sha512Int.js
