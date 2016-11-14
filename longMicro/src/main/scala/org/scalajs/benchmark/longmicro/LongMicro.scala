@@ -717,7 +717,7 @@ object LongToString32 extends LongMicro {
       throw new Exception("wrong result")
   }
 
-  @inline def binaryOp(a: Long, b: Long): Long = a.toString().length()
+  @inline def binaryOp(a: Long, b: Long): Long = java.lang.Long.toString(a).length()
 }
 
 object LongToString53 extends LongMicro {
@@ -728,7 +728,7 @@ object LongToString53 extends LongMicro {
       throw new Exception("wrong result")
   }
 
-  @inline def binaryOp(a: Long, b: Long): Long = a.toString().length()
+  @inline def binaryOp(a: Long, b: Long): Long = java.lang.Long.toString(a).length()
 }
 
 object LongToString64 extends LongMicro {
@@ -739,5 +739,5 @@ object LongToString64 extends LongMicro {
       throw new Exception("wrong result")
   }
 
-  @inline def binaryOp(a: Long, b: Long): Long = a.toString().length()
+  @inline def binaryOp(a: Long, b: Long): Long = java.lang.Long.toString(a).length()
 }
