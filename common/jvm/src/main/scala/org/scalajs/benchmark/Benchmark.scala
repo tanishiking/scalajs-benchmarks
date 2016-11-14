@@ -36,22 +36,38 @@ abstract class Benchmark {
   def run(): Unit
 
   /** Run the benchmark the specified number of milliseconds and return
-   *  the average execution time in microseconds.
+   *  the mean execution time and SEM in microseconds.
    */
-  def runBenchmark(timeMinimum: Long, runsMinimum: Int): Double = {
+  def runBenchmark(timeMinimum: Long, runsMinimum: Int): (Double, Double) = {
     var runs = 0
-    val startTime = System.nanoTime()
-    var stopTime = startTime + timeMinimum.toLong * 1000000L
-    var currentTime = startTime
+    var enoughTime = false
+    val stopTime = System.nanoTime() + timeMinimum.toLong * 1000000L
+
+    val samples = Array.newBuilder[Double]
 
     do {
+      val startTime = System.nanoTime()
       run()
+      val endTime = System.nanoTime()
+      samples += (endTime - startTime) / 1000.0
       runs += 1
-      currentTime = System.nanoTime()
-    } while (currentTime < stopTime || runs < runsMinimum)
+      enoughTime = endTime >= stopTime
+    } while (!enoughTime || runs < runsMinimum)
 
-    val elapsed = currentTime - startTime
-    (elapsed / 1000).toDouble / runs
+    meanAndSEM(samples.result())
+  }
+
+  private def meanAndSEM(samples: Array[Double]): (Double, Double) = {
+    val n = samples.length
+    val mean = samples.sum / n
+    val sem = standardErrorOfTheMean(samples, mean)
+    (mean, sem)
+  }
+
+  private def standardErrorOfTheMean(samples: Array[Double],
+      mean: Double): Double = {
+    val n = samples.length.toDouble
+    Math.sqrt(samples.map(xi => Math.pow(xi - mean, 2)).sum / (n * (n - 1)))
   }
 
   /** Prepare any data needed by the benchmark, but whose execution time
@@ -80,9 +96,9 @@ abstract class Benchmark {
   def report(): String = {
     setUp()
     warmUp()
-    val avg = runBenchmark(20000, 50)
+    val (mean, sem) = runBenchmark(3000, 20)
     tearDown()
 
-    s"$avg us"
+    s"$mean us +- $sem us"
   }
 }

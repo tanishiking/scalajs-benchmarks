@@ -26,6 +26,19 @@ import org.scalajs.benchmark.dom._
  */
 abstract class Benchmark extends js.JSApp {
 
+  private val performanceTime: js.Function0[Double] = {
+    import js.Dynamic.{global => g}
+    import js.DynamicImplicits._
+    if (g.performance && g.performance.now) {
+      () => g.performance.now().asInstanceOf[Double]
+    } else {
+      { () =>
+        val pair = g.process.hrtime().asInstanceOf[js.Tuple2[Double, Double]]
+        (pair._1 * 1000.0) + (pair._2 / 1000000.0)
+      }
+    }
+  }
+
   def main(): Unit = {
     val status = report()
     println(s"$prefix: $status")
@@ -78,22 +91,38 @@ abstract class Benchmark extends js.JSApp {
   def run(): Unit
 
   /** Run the benchmark the specified number of milliseconds and return
-   *  the average execution time in microseconds.
+   *  the mean execution time and SEM in microseconds.
    */
-  def runBenchmark(timeMinimum: Long, runsMinimum: Int): Double = {
+  def runBenchmark(timeMinimum: Long, runsMinimum: Int): (Double, Double) = {
     var runs = 0
-    val startTime = Platform.currentTime
-    var stopTime = startTime + timeMinimum
-    var currentTime = startTime
+    var enoughTime = false
+    val stopTime = performanceTime() + timeMinimum
+
+    val samples = Array.newBuilder[Double]
 
     do {
+      val startTime = performanceTime()
       run()
+      val endTime = performanceTime()
+      samples += (endTime - startTime) * 1000.0
       runs += 1
-      currentTime = Platform.currentTime
-    } while (currentTime < stopTime || runs < runsMinimum)
+      enoughTime = endTime >= stopTime
+    } while (!enoughTime || runs < runsMinimum)
 
-    val elapsed = currentTime - startTime
-    1000.0 * elapsed / runs
+    meanAndSEM(samples.result())
+  }
+
+  private def meanAndSEM(samples: Array[Double]): (Double, Double) = {
+    val n = samples.length
+    val mean = samples.sum / n
+    val sem = standardErrorOfTheMean(samples, mean)
+    (mean, sem)
+  }
+
+  private def standardErrorOfTheMean(samples: Array[Double],
+      mean: Double): Double = {
+    val n = samples.length.toDouble
+    Math.sqrt(samples.map(xi => Math.pow(xi - mean, 2)).sum / (n * (n - 1)))
   }
 
   /** Prepare any data needed by the benchmark, but whose execution time
@@ -116,15 +145,15 @@ abstract class Benchmark extends js.JSApp {
   def prefix: String = getClass().getName()
 
   def warmUp(): Unit = {
-    runBenchmark(100, 2)
+    runBenchmark(1000, 10)
   }
 
   def report(): String = {
     setUp()
     warmUp()
-    val avg = runBenchmark(2000, 5)
+    val (mean, sem) = runBenchmark(3000, 20)
     tearDown()
 
-    s"$avg us"
+    s"$mean us +- $sem us"
   }
 }
