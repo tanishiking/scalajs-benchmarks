@@ -8,29 +8,41 @@
 
 package org.scalajs.benchmark.longmicro
 
-object LongMicroAll extends scala.scalajs.js.JSApp {
-  def main(): Unit = {
-    LongNop.main()
-    LongXor.main()
-    LongAdd.main()
-    LongMul.main()
-    LongDiv32_32.main()
-    LongDiv53_53.main()
-    LongDiv64_Pow2.main()
-    LongDiv64_8.main()
-    LongToString32.main()
-    LongToString53.main()
-    LongToString64.main()
+object LongMicroAll extends org.scalajs.benchmark.Benchmark {
+  private val allBenches = Array[org.scalajs.benchmark.Benchmark](
+      LongNop,
+      LongXor,
+      LongAdd,
+      LongMul,
+      LongDiv32_32,
+      LongDiv32_8,
+      LongDiv53_53,
+      LongDiv53_8,
+      LongDiv64_Pow2,
+      LongDiv64_64,
+      LongDiv64_8,
+      LongToString32,
+      LongToString53,
+      LongToString64
+  )
+
+  override def main(): Unit = {
+    for (bench <- allBenches)
+      bench.main()
   }
+
+  override def report(): String = {
+    val reports = for (bench <- allBenches)
+      yield bench.prefix + ": " + bench.report() + " -- "
+    reports.foldLeft("")(_ + _)
+  }
+
+  def run(): Unit = ???
 }
 
-/**
- * Long micro-benchmarks.
- */
-abstract class LongMicro extends org.scalajs.benchmark.Benchmark {
-  import scala.util.Random
+object LongMicroDataSets {
 
-  def randomAs = Array[Long](
+  val random64s = Array[Long](
       0x416a5e6e5a17717dL,
       0x955c952fc04391f0L,
       0xbea6e0dd3fb902beL,
@@ -133,88 +145,7 @@ abstract class LongMicro extends org.scalajs.benchmark.Benchmark {
       0x59092e3d49691801L
   )
 
-  def randomBs = randomAs.clone()
-
-  private var cachedRandomAs: Array[Long] = _
-  private var cachedRandomBs: Array[Long] = _
-
-  override def setUp(): Unit = {
-    super.setUp()
-    cachedRandomAs = randomAs
-    cachedRandomBs = randomBs
-  }
-
-  @inline def doRun(): Long = {
-    val randomAs = this.cachedRandomAs
-    val randomBs = this.cachedRandomBs
-    val alen = randomAs.length
-    val blen = randomBs.length
-    var result = 0L
-    var i = 0
-    while (i != alen) {
-      var j = 0
-      while (j != blen) {
-        val a = randomAs(i)
-        val b = randomBs(j)
-        result ^= binaryOp(a, b)
-        j += 1
-      }
-      i += 1
-    }
-    result
-  }
-
-  def binaryOp(a: Long, b: Long): Long
-}
-
-object LongNop extends LongMicro {
-  override def prefix = "LongNop"
-
-  def run(): Unit = {
-    if (doRun() != 0L)
-      throw new Exception("wrong result")
-  }
-
-  @inline def binaryOp(a: Long, b: Long): Long = a
-}
-
-object LongXor extends LongMicro {
-  override def prefix = "LongXor"
-
-  def run(): Unit = {
-    if (doRun() != 0L)
-      throw new Exception("wrong result")
-  }
-
-  @inline def binaryOp(a: Long, b: Long): Long = a ^ b
-}
-
-object LongAdd extends LongMicro {
-  override def prefix = "LongAdd"
-
-  def run(): Unit = {
-    if (doRun() != -3199834553443988620L)
-      throw new Exception("wrong result")
-  }
-
-  @inline def binaryOp(a: Long, b: Long): Long = a + b
-}
-
-object LongMul extends LongMicro {
-  override def prefix = "LongMul"
-
-  def run(): Unit = {
-    if (doRun() != -4111379928290889828L)
-      throw new Exception("wrong result")
-  }
-
-  @inline def binaryOp(a: Long, b: Long): Long = a * b
-}
-
-object LongDiv32_32 extends LongMicro {
-  override def prefix = "LongDiv32_32"
-
-  override def randomAs = Array[Long](
+  val random32s = Array[Long](
       0x3d7bca72L,
       0x6e125b10L,
       0xfffffffff3299127L,
@@ -317,18 +248,7 @@ object LongDiv32_32 extends LongMicro {
       0xfffffffffb8ba481L
   )
 
-  def run(): Unit = {
-    if (doRun() != 54L)
-      throw new Exception("wrong result")
-  }
-
-  @inline def binaryOp(a: Long, b: Long): Long = a / b
-}
-
-object LongDiv53_53 extends LongMicro {
-  override def prefix = "LongDiv53_53"
-
-  override def randomAs = Array[Long](
+  val random53s = Array[Long](
       0xa014b5eb2d544L,
       0xfff81ba21761c495L,
       0x4d77578d1370cL,
@@ -431,132 +351,7 @@ object LongDiv53_53 extends LongMicro {
       0xfffd04c9c2d2217cL
   )
 
-  def run(): Unit = {
-    if (doRun() != 41L)
-      throw new Exception("wrong result")
-  }
-
-  @inline def binaryOp(a: Long, b: Long): Long = a / b
-}
-
-object LongDiv64_Pow2 extends LongMicro {
-  override def prefix = "LongDiv64_Pow2"
-
-  override def randomBs = Array[Long](
-      0x1000000000L,
-      0x400000000000000L,
-      0x2000000000000000L,
-      0x10000000000L,
-      0x200L,
-      0x4000L,
-      0x800000000000000L,
-      0x2000000L,
-      0x2000L,
-      0x20000L,
-      0x400000000000L,
-      0x10000L,
-      0x8000L,
-      0x10000000000L,
-      0x40000000000L,
-      0x8000L,
-      0x4000000000000000L,
-      0x20000000000000L,
-      0x200000000000000L,
-      0x200000000000000L,
-      0x2000000L,
-      0x1000L,
-      0x1L,
-      0x400000L,
-      0x10000000L,
-      0x400L,
-      0x20000000L,
-      0x200000000L,
-      0x8L,
-      0x200L,
-      0x80000000000L,
-      0x20000000L,
-      0x2000000L,
-      0x100000000000L,
-      0x4000000000L,
-      0x10000000L,
-      0x100L,
-      0x200L,
-      0x20000000000000L,
-      0x40000000000L,
-      0x80000000L,
-      0x80000000000L,
-      0x200000000L,
-      0x20000000000000L,
-      0x200000000000000L,
-      0x8000000000000000L,
-      0x400000L,
-      0x1000L,
-      0x8000000000000000L,
-      0x4000000L,
-      0x4000000000000000L,
-      0x1L,
-      0x8000000000L,
-      0x40000000000000L,
-      0x10000000000000L,
-      0x4L,
-      0x80000000000L,
-      0x8000000L,
-      0x200000000000000L,
-      0x4L,
-      0x40L,
-      0x200L,
-      0x800000000000L,
-      0x800000L,
-      0x4000000000000L,
-      0x1000L,
-      0x2000000000000000L,
-      0x800000000000L,
-      0x100000000000000L,
-      0x8000000000000L,
-      0x2000000000000L,
-      0x80000000000000L,
-      0x8000000000000000L,
-      0x10000000000000L,
-      0x100000000L,
-      0x1000000L,
-      0x1L,
-      0x20L,
-      0x80000000000000L,
-      0x4000L,
-      0x100000000L,
-      0x100L,
-      0x8L,
-      0x80000000000000L,
-      0x20L,
-      0x4000000L,
-      0x8000000000L,
-      0x10L,
-      0x400L,
-      0x4000000000L,
-      0x2000000L,
-      0x800000000L,
-      0x1L,
-      0x2000000L,
-      0x1000000000000000L,
-      0x80000000L,
-      0x8000L,
-      0x2000000000L,
-      0x100000000000L,
-      0x40L
-  )
-
-  def run(): Unit = {
-    if (doRun() != 475661794007097238L)
-      throw new Exception("wrong result")
-  }
-
-  @inline def binaryOp(a: Long, b: Long): Long = a / b
-}
-
-object LongDiv64_8 extends LongMicro {
-  override def prefix = "LongDiv64_8"
-
-  override def randomBs = Array[Long](
+  val random8s = Array[Long](
       0xffffffffffffff97L,
       0x31L,
       0xffffffffffffffa8L,
@@ -659,8 +454,255 @@ object LongDiv64_8 extends LongMicro {
       0xfffffffffffffff6L
   )
 
+  val randomPow2s = Array[Long](
+      0x1000000000L,
+      0x400000000000000L,
+      0x2000000000000000L,
+      0x10000000000L,
+      0x200L,
+      0x4000L,
+      0x800000000000000L,
+      0x2000000L,
+      0x2000L,
+      0x20000L,
+      0x400000000000L,
+      0x10000L,
+      0x8000L,
+      0x10000000000L,
+      0x40000000000L,
+      0x8000L,
+      0x4000000000000000L,
+      0x20000000000000L,
+      0x200000000000000L,
+      0x200000000000000L,
+      0x2000000L,
+      0x1000L,
+      0x1L,
+      0x400000L,
+      0x10000000L,
+      0x400L,
+      0x20000000L,
+      0x200000000L,
+      0x8L,
+      0x200L,
+      0x80000000000L,
+      0x20000000L,
+      0x2000000L,
+      0x100000000000L,
+      0x4000000000L,
+      0x10000000L,
+      0x100L,
+      0x200L,
+      0x20000000000000L,
+      0x40000000000L,
+      0x80000000L,
+      0x80000000000L,
+      0x200000000L,
+      0x20000000000000L,
+      0x200000000000000L,
+      0x8000000000000000L,
+      0x400000L,
+      0x1000L,
+      0x8000000000000000L,
+      0x4000000L,
+      0x4000000000000000L,
+      0x1L,
+      0x8000000000L,
+      0x40000000000000L,
+      0x10000000000000L,
+      0x4L,
+      0x80000000000L,
+      0x8000000L,
+      0x200000000000000L,
+      0x4L,
+      0x40L,
+      0x200L,
+      0x800000000000L,
+      0x800000L,
+      0x4000000000000L,
+      0x1000L,
+      0x2000000000000000L,
+      0x800000000000L,
+      0x100000000000000L,
+      0x8000000000000L,
+      0x2000000000000L,
+      0x80000000000000L,
+      0x8000000000000000L,
+      0x10000000000000L,
+      0x100000000L,
+      0x1000000L,
+      0x1L,
+      0x20L,
+      0x80000000000000L,
+      0x4000L,
+      0x100000000L,
+      0x100L,
+      0x8L,
+      0x80000000000000L,
+      0x20L,
+      0x4000000L,
+      0x8000000000L,
+      0x10L,
+      0x400L,
+      0x4000000000L,
+      0x2000000L,
+      0x800000000L,
+      0x1L,
+      0x2000000L,
+      0x1000000000000000L,
+      0x80000000L,
+      0x8000L,
+      0x2000000000L,
+      0x100000000000L,
+      0x40L
+  )
+
+}
+
+import LongMicroDataSets._
+
+/**
+ * Long micro-benchmarks.
+ */
+abstract class LongMicro extends org.scalajs.benchmark.Benchmark {
+  import scala.util.Random
+
+  @inline def doRun(randomAs: Array[Long], randomBs: Array[Long]): Long = {
+    val alen = randomAs.length
+    val blen = randomBs.length
+    var result = 0L
+    var i = 0
+    while (i != alen) {
+      var j = 0
+      while (j != blen) {
+        val a = randomAs(i)
+        val b = randomBs(j)
+        result ^= binaryOp(a, b)
+        j += 1
+      }
+      i += 1
+    }
+    result
+  }
+
+  def binaryOp(a: Long, b: Long): Long
+}
+
+object LongNop extends LongMicro {
+  override def prefix = "LongNop"
+
   def run(): Unit = {
-    if (doRun() != 1415998624949685666L)
+    if (doRun(random64s, random64s) != 0L)
+      throw new Exception("wrong result")
+  }
+
+  @inline def binaryOp(a: Long, b: Long): Long = a
+}
+
+object LongXor extends LongMicro {
+  override def prefix = "LongXor"
+
+  def run(): Unit = {
+    if (doRun(random64s, random64s) != 0L)
+      throw new Exception("wrong result")
+  }
+
+  @inline def binaryOp(a: Long, b: Long): Long = a ^ b
+}
+
+object LongAdd extends LongMicro {
+  override def prefix = "LongAdd"
+
+  def run(): Unit = {
+    if (doRun(random64s, random64s) != -3199834553443988620L)
+      throw new Exception("wrong result")
+  }
+
+  @inline def binaryOp(a: Long, b: Long): Long = a + b
+}
+
+object LongMul extends LongMicro {
+  override def prefix = "LongMul"
+
+  def run(): Unit = {
+    if (doRun(random64s, random64s) != -4111379928290889828L)
+      throw new Exception("wrong result")
+  }
+
+  @inline def binaryOp(a: Long, b: Long): Long = a * b
+}
+
+object LongDiv32_32 extends LongMicro {
+  override def prefix = "LongDiv32_32"
+
+  def run(): Unit = {
+    if (doRun(random32s, random32s) != 54L)
+      throw new Exception("wrong result")
+  }
+
+  @inline def binaryOp(a: Long, b: Long): Long = a / b
+}
+
+object LongDiv32_8 extends LongMicro {
+  override def prefix = "LongDiv32_8"
+
+  def run(): Unit = {
+    if (doRun(random32s, random8s) != 396463647L)
+      throw new Exception("wrong result")
+  }
+
+  @inline def binaryOp(a: Long, b: Long): Long = a / b
+}
+
+object LongDiv53_53 extends LongMicro {
+  override def prefix = "LongDiv53_53"
+
+  def run(): Unit = {
+    if (doRun(random53s, random53s) != 41L)
+      throw new Exception("wrong result")
+  }
+
+  @inline def binaryOp(a: Long, b: Long): Long = a / b
+}
+
+object LongDiv53_8 extends LongMicro {
+  override def prefix = "LongDiv53_8"
+
+  def run(): Unit = {
+    if (doRun(random53s, random8s) != 39173628864963L)
+      throw new Exception("wrong result")
+  }
+
+  @inline def binaryOp(a: Long, b: Long): Long = a / b
+}
+
+object LongDiv64_Pow2 extends LongMicro {
+  override def prefix = "LongDiv64_Pow2"
+
+  def run(): Unit = {
+    if (doRun(random64s, randomPow2s) != 475661794007097238L)
+      throw new Exception("wrong result")
+  }
+
+  @inline def binaryOp(a: Long, b: Long): Long = a / b
+}
+
+object LongDiv64_64 extends LongMicro {
+  override def prefix = "LongDiv64_64"
+
+  def run(): Unit = {
+    if (doRun(random64s, random64s) != 64L)
+      throw new Exception("wrong result")
+  }
+
+  @inline def binaryOp(a: Long, b: Long): Long = a / b
+}
+
+object LongDiv64_8 extends LongMicro {
+  override def prefix = "LongDiv64_8"
+
+  def run(): Unit = {
+    if (doRun(random64s, random8s) != 1415998624949685666L)
       throw new Exception("wrong result")
   }
 
@@ -670,111 +712,8 @@ object LongDiv64_8 extends LongMicro {
 object LongToString32 extends LongMicro {
   override def prefix = "LongToString32"
 
-  override def randomAs = Array[Long](
-      0x3d7bca72L,
-      0x6e125b10L,
-      0xfffffffff3299127L,
-      0xffffffffdefa0492L,
-      0xffffffffeea0a2cfL,
-      0xffffffffb8038179L,
-      0xa0e5f0cL,
-      0x4d830f21L,
-      0xffffffffef18aa84L,
-      0x4f042fc1L,
-      0x12dbd8a5L,
-      0xffffffffe3558dc1L,
-      0x71ecbe93L,
-      0xffffffffa956d5c6L,
-      0x640c3bd5L,
-      0x44d77fb1L,
-      0x99c9f40L,
-      0xffffffffe79d2c19L,
-      0xffffffffee95932bL,
-      0x6552cb0bL,
-      0x5905b9f7L,
-      0x56af0217L,
-      0xffffffffd5f56c67L,
-      0xffffffff839c8af1L,
-      0x26d22d6bL,
-      0x7cc75936L,
-      0xffffffff9c62f33dL,
-      0xffffffffa4268d06L,
-      0x4c916c02L,
-      0x751761a0L,
-      0x5fc17458L,
-      0xffffffffa5a6b220L,
-      0x20ce206fL,
-      0xffffffffc5b42c05L,
-      0x45098ca1L,
-      0x807263bL,
-      0x2a8b38a0L,
-      0xffffffffe5cd24adL,
-      0x5e7f88c0L,
-      0x510da3b0L,
-      0x4ecc3adbL,
-      0xffffffffd266abccL,
-      0xffffffffe971b8e2L,
-      0xffffffff865735a5L,
-      0xffffffffcc6b4923L,
-      0x67b55f19L,
-      0xffffffff8aa1bcbcL,
-      0xc292dc7L,
-      0x71c176e0L,
-      0xffffffffa1ebe8a1L,
-      0x51280bd0L,
-      0xffffffffe36f4136L,
-      0xffffffff98cc54beL,
-      0x631666d7L,
-      0x5ed13defL,
-      0x7a4a00c1L,
-      0xffffffffdbc5d6d5L,
-      0x31bbc1f0L,
-      0xffffffff86e8d7feL,
-      0x39102053L,
-      0xffffffffbbd1f909L,
-      0x76ae826dL,
-      0x695da0fcL,
-      0xffffffff8cd841acL,
-      0xffffffffdfb7c5b3L,
-      0xffffffffc4fbfcf8L,
-      0x3467c343L,
-      0x3fc83653L,
-      0x47d1a280L,
-      0x7681e774L,
-      0x7a993e0dL,
-      0xffffffff81c1eccaL,
-      0x20bb0799L,
-      0x7f9fab4fL,
-      0x62c56b3aL,
-      0xffffffff98d57d03L,
-      0x6e000504L,
-      0x7dfa0919L,
-      0xffffffffdab49d4fL,
-      0xfffffffffb630813L,
-      0xffffffffeb753a49L,
-      0x369ce15aL,
-      0xffffffffa16519c1L,
-      0xffffffffbd4e5f25L,
-      0x75252458L,
-      0xffffffff9030369fL,
-      0xffffffffb1eaf374L,
-      0x1951a5b0L,
-      0x5d29e5a9L,
-      0xffffffff83b2bcd6L,
-      0x5914897dL,
-      0x469b62ecL,
-      0x1298eca5L,
-      0x27d89dbL,
-      0xffffffff9611ae2fL,
-      0x3cb7b681L,
-      0xffffffffbf181c44L,
-      0xffffffffc079bb52L,
-      0x1db7ba55L,
-      0xfffffffffb8ba481L
-  )
-
   def run(): Unit = {
-    if (doRun() != 0L)
+    if (doRun(random32s, random32s) != 0L)
       throw new Exception("wrong result")
   }
 
@@ -784,111 +723,8 @@ object LongToString32 extends LongMicro {
 object LongToString53 extends LongMicro {
   override def prefix = "LongToString53"
 
-  override def randomAs = Array[Long](
-      0xa014b5eb2d544L,
-      0xfff81ba21761c495L,
-      0x4d77578d1370cL,
-      0x49d5abe6d91c4L,
-      0x6da66b7976ab8L,
-      0xfff94d7c0aadc01dL,
-      0x3ba7bb07a26c5L,
-      0xfff4898488de1b39L,
-      0x1fb4aa97c4e72L,
-      0xfffc7d8417a681a2L,
-      0xfff9ea38de4a30dcL,
-      0xfff7cc020050b1d1L,
-      0x4a8cf8ba7de6eL,
-      0xecd5c1740b2e1L,
-      0xffff1205454d9105L,
-      0xfffa282763ece31aL,
-      0xfff3307811507e49L,
-      0xfff74422d262a9dbL,
-      0xfff50edccd83516aL,
-      0xdd1d46ac78c4aL,
-      0x2abb05aee2182L,
-      0xa59f192ca5caeL,
-      0xfff50d7f12f2acb7L,
-      0x93ad50a5325L,
-      0xfff8a5df04621518L,
-      0x7bf7bb28d7be4L,
-      0x8a68176bafc25L,
-      0x452e6fad6f308L,
-      0xb6d883731cbd9L,
-      0xd04102c60487dL,
-      0x204932dbbe8dbL,
-      0xd24a5d3f0743L,
-      0xfff2a0c2b8ce989dL,
-      0x1c43d2b5522f3L,
-      0x3693351fb3fcbL,
-      0xfff8d508357ce416L,
-      0x14d3efb1e69a3L,
-      0xfff513559b31387bL,
-      0x4ac18f1c26f68L,
-      0xe254405a2f781L,
-      0xfffdc4202c90c060L,
-      0xfda18b8021bb9L,
-      0x4998d1faf5e5bL,
-      0xfff6413227f51335L,
-      0xfff709e7487f48f7L,
-      0x4ecbb9e547e36L,
-      0xfff45bf70302f287L,
-      0xe1e2a5f71e8d9L,
-      0xfff492b0260a9c91L,
-      0x5a294db85a7caL,
-      0xc64d9e7934795L,
-      0xda57c677ae9ebL,
-      0xac3008971e1eeL,
-      0xfff8c1a9fd27b144L,
-      0xfffc91854d903c4bL,
-      0xfffba14683e5a47eL,
-      0xfffd7569332f2758L,
-      0x1985f2113ef89L,
-      0xc8fb6f9fea5f0L,
-      0xb578e10f39e0aL,
-      0x98d38f04a793eL,
-      0xe2788866f6470L,
-      0x5ce6f05d120f0L,
-      0xfffe99da13b495a3L,
-      0xf6681aa1ae0bbL,
-      0x5471e1bd27292L,
-      0x58f35ef151e17L,
-      0x1978fc992febcL,
-      0x9bbaf76ee9d4eL,
-      0x8b7d111577960L,
-      0xfffbf414a7c7738eL,
-      0xfff94951387b6dcaL,
-      0xffff60f1a8f314eeL,
-      0xfff31bc366eb66a2L,
-      0x42e7ea6ed60e2L,
-      0x9d39dbeb59809L,
-      0xfff1fdb5df711dd7L,
-      0x6d8a17d17b2c3L,
-      0xa3b6df7859d59L,
-      0xfc6f4a3206f89L,
-      0xfff0b475160b6d34L,
-      0x8ed5da55ea504L,
-      0xfffbe0f14988afceL,
-      0x5abb9a512cce7L,
-      0xb7112b4631dfbL,
-      0x1cdcdb10924f9L,
-      0xce96c01207757L,
-      0xfff6d01b8cc6ffd5L,
-      0xa5e0d9f196b33L,
-      0xfff65e6a8230c678L,
-      0x1e0c8471c73f9L,
-      0xfff0d63cba1187c0L,
-      0x4c8c34775e0dfL,
-      0xfffc32719be1253fL,
-      0xdfdb18b3069eL,
-      0xffff08ddb6521dceL,
-      0xfffb8504baa56ed5L,
-      0xfff636a8b0e10d9fL,
-      0xfff53a3a57d7879dL,
-      0xfffd04c9c2d2217cL
-  )
-
   def run(): Unit = {
-    if (doRun() != 0L)
+    if (doRun(random53s, random53s) != 0L)
       throw new Exception("wrong result")
   }
 
@@ -899,7 +735,7 @@ object LongToString64 extends LongMicro {
   override def prefix = "LongToString64"
 
   def run(): Unit = {
-    if (doRun() != 0L)
+    if (doRun(random64s, random64s) != 0L)
       throw new Exception("wrong result")
   }
 

@@ -125,10 +125,8 @@ lazy val longMicro = crossProject.crossType(CrossType.Pure).
   jsSettings(defaultJSSettings: _*).
   settings(
     name := "Scala.js Benchmarks - LongMicro",
-    moduleName := "longmicro"
-  ).
-  jsSettings(
-    persistLauncher := false
+    moduleName := "longmicro",
+    mainClass in Compile := Some("org.scalajs.benchmark.longmicro.LongMicroAll")
   ).
   dependsOn(common)
 
