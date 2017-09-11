@@ -20,7 +20,7 @@ val defaultJVMSettings: Seq[Setting[_]] = Seq(
 )
 
 val defaultJSSettings: Seq[Setting[_]] = Seq(
-  scalaJSSemantics ~= { _.withAsInstanceOfs(Unchecked) },
+  scalaJSSemantics ~= { _.withAsInstanceOfs(Unchecked).withArrayIndexOutOfBounds(Unchecked) },
   persistLauncher := true
 )
 
