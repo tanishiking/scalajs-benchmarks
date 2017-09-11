@@ -9,9 +9,11 @@
 package org.scalajs.benchmark.dom
 
 import scala.scalajs.js
+import scala.scalajs.js.annotation._
 
 @js.native
-object DOM extends js.GlobalScope {
+@JSGlobalScope
+object DOM extends js.Any {
   val document: DOMDocument = js.native
 }
 

@@ -24,12 +24,12 @@ import org.scalajs.benchmark.dom._
  *
  *  @author Iulian Dragos, Burak Emir
  */
-abstract class Benchmark extends js.JSApp {
+abstract class Benchmark {
 
   private val performanceTime: js.Function0[Double] = {
     import js.Dynamic.{global => g}
     import js.DynamicImplicits._
-    if (g.performance && g.performance.now) {
+    if (js.typeOf(g.performance) != "undefined" && g.performance.now) {
       () => g.performance.now().asInstanceOf[Double]
     } else {
       { () =>
@@ -39,7 +39,7 @@ abstract class Benchmark extends js.JSApp {
     }
   }
 
-  def main(): Unit = {
+  def main(args: Array[String]): Unit = {
     val status = report()
     println(s"$prefix: $status")
   }

@@ -9,14 +9,28 @@
 package org.scalajs.benchmark
 
 import scala.scalajs.js
-import js.annotation.JSExport
+import scala.scalajs.js.annotation._
+
+import scala.scalajs.reflect.annotation._
+import scala.scalajs.reflect.Reflect
+
 import org.scalajs.benchmark.dom._
 
+object BenchmarkApp {
+  @JSExportTopLevel("runBenchmarkApp")
+  def runBenchmarkApp(className: String): Unit = {
+    val clazz = Reflect.lookupLoadableModuleClass(className + "$").getOrElse {
+      throw new RuntimeException(s"Module $className does not exist")
+    }
+    clazz.loadModule().asInstanceOf[BenchmarkApp].init()
+  }
+}
+
+@EnableReflectiveInstantiation
 trait BenchmarkApp {
 
   def onClick(): Unit
 
-  @JSExport
   def init() {
     val button = $("run")
 

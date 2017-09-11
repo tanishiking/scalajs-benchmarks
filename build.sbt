@@ -1,4 +1,4 @@
-import org.scalajs.core.tools.sem.CheckedBehavior.Unchecked
+import org.scalajs.core.tools.linker.CheckedBehavior.Unchecked
 
 val projectSettings: Seq[Setting[_]] = Seq(
   organization := "scalajs-benchmarks",
@@ -20,8 +20,10 @@ val defaultJVMSettings: Seq[Setting[_]] = Seq(
 )
 
 val defaultJSSettings: Seq[Setting[_]] = Seq(
-  scalaJSSemantics ~= { _.withAsInstanceOfs(Unchecked).withArrayIndexOutOfBounds(Unchecked) },
-  persistLauncher := true
+  scalaJSLinkerConfig ~= {
+    _.withSemantics(_.withAsInstanceOfs(Unchecked).withArrayIndexOutOfBounds(Unchecked))
+  },
+  scalaJSUseMainModuleInitializer := true
 )
 
 lazy val parent = project.in(file(".")).
