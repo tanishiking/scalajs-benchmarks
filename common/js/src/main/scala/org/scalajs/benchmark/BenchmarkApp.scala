@@ -35,7 +35,7 @@ trait BenchmarkApp {
     val button = $("run")
 
     if (button != null) {
-      button.onclick = onClick _
+      button.onclick = () => onClick()
     }
   }
 
