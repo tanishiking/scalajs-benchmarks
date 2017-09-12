@@ -26,9 +26,9 @@ object LongMicroAll extends org.scalajs.benchmark.Benchmark {
       LongToString64
   )
 
-  override def main(): Unit = {
+  override def main(args: Array[String]): Unit = {
     for (bench <- allBenches)
-      bench.main()
+      bench.main(args)
   }
 
   override def report(): String = {

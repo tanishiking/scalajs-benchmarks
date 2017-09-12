@@ -8,11 +8,23 @@
 
 package org.scalajs.benchmark
 
-import scala.compat.Platform
 import scala.scalajs.js
-import js.annotation.JSExport
+import scala.scalajs.js.annotation._
+
+import scala.scalajs.reflect.annotation._
+import scala.scalajs.reflect.Reflect
 
 import org.scalajs.benchmark.dom._
+
+object Benchmark {
+  @JSExportTopLevel("setupHTMLBenchmark")
+  def setupHTMLBenchmark(className: String): Unit = {
+    val clazz = Reflect.lookupLoadableModuleClass(className + "$").getOrElse {
+      throw new RuntimeException(s"Module $className does not exist")
+    }
+    clazz.loadModule().asInstanceOf[Benchmark].mainHTML()
+  }
+}
 
 /** `Benchmark` base class based on the deprecated scala.testing.Benchmark.
  *
@@ -24,6 +36,7 @@ import org.scalajs.benchmark.dom._
  *
  *  @author Iulian Dragos, Burak Emir
  */
+@EnableReflectiveInstantiation
 abstract class Benchmark {
 
   private val performanceTime: js.Function0[Double] = {
@@ -40,11 +53,12 @@ abstract class Benchmark {
   }
 
   def main(args: Array[String]): Unit = {
-    val status = report()
-    println(s"$prefix: $status")
+    if (js.typeOf(js.Dynamic.global.process) != "undefined") {
+      val status = report()
+      println(s"$prefix: $status")
+    }
   }
 
-  @JSExport
   def mainHTML(): Unit = {
     import DOM.document
 
