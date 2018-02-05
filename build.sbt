@@ -1,4 +1,4 @@
-import org.scalajs.core.tools.linker.CheckedBehavior.Unchecked
+import org.scalajs.linker.CheckedBehavior.Unchecked
 
 val projectSettings: Seq[Setting[_]] = Seq(
   organization := "scalajs-benchmarks",
