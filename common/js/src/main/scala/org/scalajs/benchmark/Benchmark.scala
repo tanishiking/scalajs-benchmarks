@@ -44,16 +44,18 @@ abstract class Benchmark {
     import js.DynamicImplicits._
     if (js.typeOf(g.performance) != "undefined" && g.performance.now) {
       () => g.performance.now().asInstanceOf[Double]
-    } else {
+    } else if (js.typeOf(g.process) != "undefined") {
       { () =>
         val pair = g.process.hrtime().asInstanceOf[js.Tuple2[Double, Double]]
         (pair._1 * 1000.0) + (pair._2 / 1000000.0)
       }
+    } else {
+      () => (new js.Date).getTime()
     }
   }
 
   def main(args: Array[String]): Unit = {
-    if (js.typeOf(js.Dynamic.global.process) != "undefined") {
+    if (js.typeOf(js.Dynamic.global.window) == "undefined") {
       val status = report()
       println(s"$prefix: $status")
     }
