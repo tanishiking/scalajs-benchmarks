@@ -89,3 +89,7 @@ lazy val longMicro = autoConfig(crossProject(JSPlatform, JVMPlatform))
   )
 lazy val longMicroJVM = longMicro.jvm
 lazy val longMicroJS = longMicro.js
+
+lazy val kmeans = autoConfig(crossProject(JSPlatform, JVMPlatform))
+lazy val kmeansJVM = kmeans.jvm
+lazy val kmeansJS = kmeans.js
