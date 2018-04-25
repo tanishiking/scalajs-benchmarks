@@ -6,7 +6,7 @@ val projectSettings: Seq[Setting[_]] = Seq(
 )
 
 val defaultSettings: Seq[Setting[_]] = projectSettings ++ Seq(
-  scalaVersion := "2.11.11",
+  scalaVersion := "2.12.5",
   scalacOptions ++= Seq(
       "-deprecation",
       "-unchecked",

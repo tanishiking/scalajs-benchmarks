@@ -79,8 +79,8 @@ run_benchmark_mode()
 {
 	engine="$1" benchmark="$2" mode="$3"
 	test -d "$ROOT_DIR/$benchmark/.js" && \
-	  out_dir="$ROOT_DIR/$benchmark/.js/target/scala-2.11" || \
-	  out_dir="$ROOT_DIR/$benchmark/js/target/scala-2.11"
+	  out_dir="$ROOT_DIR/$benchmark/.js/target/scala-2.12" || \
+	  out_dir="$ROOT_DIR/$benchmark/js/target/scala-2.12"
 	lib_dir="$ROOT_DIR/common"
 	js="$out_dir/$benchmark.$engine-$mode.js"
 	engine_bin=$(eval echo \$"${engine}_bin")
@@ -93,10 +93,8 @@ run_benchmark_mode()
 		case "$mode" in
 		js)		cat "$lib_dir/reference/bench.js" \
 				    "$lib_dir/reference/$benchmark.js" ;;
-		fullopt)	cat "$out_dir/$benchmark-opt.js" \
-				    "$out_dir/$benchmark-launcher.js" ;;
-		fastopt)	cat "$out_dir/$benchmark-fastopt.js" \
-				    "$out_dir/$benchmark-launcher.js" ;;
+		fullopt)	cat "$out_dir/$benchmark-opt.js" ;;
+		fastopt)	cat "$out_dir/$benchmark-fastopt.js" ;;
 		*)		die "Unknown mode: $mode"
 		esac
 		cat "$lib_dir/start-benchmark.js"
