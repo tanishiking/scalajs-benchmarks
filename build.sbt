@@ -33,7 +33,7 @@ lazy val parent = project.in(file(".")).
     publishArtifact in Compile := false
   )
 
-lazy val common = crossProject.
+lazy val common = crossProject(JSPlatform, JVMPlatform).
   settings(defaultSettings: _*).
   settings(
     name := "Scala.js Benchmarks - Common",
@@ -43,7 +43,8 @@ lazy val common = crossProject.
 lazy val commonJVM = common.jvm
 lazy val commonJS = common.js
 
-lazy val deltablue = crossProject.crossType(CrossType.Pure).
+lazy val deltablue = crossProject(JSPlatform, JVMPlatform).
+  crossType(CrossType.Pure).
   settings(defaultSettings: _*).
   jvmSettings(defaultJVMSettings: _*).
   jsSettings(defaultJSSettings: _*).
@@ -56,7 +57,8 @@ lazy val deltablue = crossProject.crossType(CrossType.Pure).
 lazy val deltablueJVM = deltablue.jvm
 lazy val deltablueJS = deltablue.js
 
-lazy val richards = crossProject.crossType(CrossType.Pure).
+lazy val richards = crossProject(JSPlatform, JVMPlatform).
+  crossType(CrossType.Pure).
   settings(defaultSettings: _*).
   jvmSettings(defaultJVMSettings: _*).
   jsSettings(defaultJSSettings: _*).
@@ -69,7 +71,8 @@ lazy val richards = crossProject.crossType(CrossType.Pure).
 lazy val richardsJVM = richards.jvm
 lazy val richardsJS = richards.js
 
-lazy val sudoku = crossProject.crossType(CrossType.Pure).
+lazy val sudoku = crossProject(JSPlatform, JVMPlatform).
+  crossType(CrossType.Pure).
   settings(defaultSettings: _*).
   jvmSettings(defaultJVMSettings: _*).
   jsSettings(defaultJSSettings: _*).
@@ -82,7 +85,7 @@ lazy val sudoku = crossProject.crossType(CrossType.Pure).
 lazy val sudokuJVM = sudoku.jvm
 lazy val sudokuJS = sudoku.js
 
-lazy val tracer = crossProject.
+lazy val tracer = crossProject(JSPlatform, JVMPlatform).
   settings(defaultSettings: _*).
   jvmSettings(defaultJVMSettings: _*).
   jsSettings(defaultJSSettings: _*).
@@ -95,7 +98,8 @@ lazy val tracer = crossProject.
 lazy val tracerJVM = tracer.jvm
 lazy val tracerJS = tracer.js
 
-lazy val sha512 = crossProject.crossType(CrossType.Pure).
+lazy val sha512 = crossProject(JSPlatform, JVMPlatform).
+  crossType(CrossType.Pure).
   settings(defaultSettings: _*).
   jvmSettings(defaultJVMSettings: _*).
   jsSettings(defaultJSSettings: _*).
@@ -108,7 +112,8 @@ lazy val sha512 = crossProject.crossType(CrossType.Pure).
 lazy val sha512JVM = sha512.jvm
 lazy val sha512JS = sha512.js
 
-lazy val sha512Int = crossProject.crossType(CrossType.Pure).
+lazy val sha512Int = crossProject(JSPlatform, JVMPlatform).
+  crossType(CrossType.Pure).
   settings(defaultSettings: _*).
   jvmSettings(defaultJVMSettings: _*).
   jsSettings(defaultJSSettings: _*).
@@ -121,7 +126,8 @@ lazy val sha512Int = crossProject.crossType(CrossType.Pure).
 lazy val sha512IntJVM = sha512Int.jvm
 lazy val sha512IntJS = sha512Int.js
 
-lazy val longMicro = crossProject.crossType(CrossType.Pure).
+lazy val longMicro = crossProject(JSPlatform, JVMPlatform).
+  crossType(CrossType.Pure).
   settings(defaultSettings: _*).
   jvmSettings(defaultJVMSettings: _*).
   jsSettings(defaultJSSettings: _*).
