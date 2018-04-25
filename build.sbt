@@ -1,4 +1,5 @@
 import org.scalajs.linker.CheckedBehavior.Unchecked
+import sbtcrossproject.CrossProject
 
 val projectSettings: Seq[Setting[_]] = Seq(
   organization := "scalajs-benchmarks",
@@ -29,114 +30,62 @@ val defaultJSSettings: Seq[Setting[_]] = Seq(
 lazy val parent = project.in(file(".")).
   settings(projectSettings: _*).
   settings(
-    name := "Scala.js Benchmarks",
+    name := "scalajs-benchmarks",
     publishArtifact in Compile := false
   )
 
 lazy val common = crossProject(JSPlatform, JVMPlatform).
   settings(defaultSettings: _*).
   settings(
-    name := "Scala.js Benchmarks - Common",
+    name := "scalajs-benchmarks-common",
     moduleName := "common"
   )
 
 lazy val commonJVM = common.jvm
 lazy val commonJS = common.js
 
-lazy val deltablue = crossProject(JSPlatform, JVMPlatform).
-  crossType(CrossType.Pure).
-  settings(defaultSettings: _*).
-  jvmSettings(defaultJVMSettings: _*).
-  jsSettings(defaultJSSettings: _*).
-  settings(
-    name := "Scala.js Benchmarks - DeltaBlue",
-    moduleName := "deltablue"
-  ).
-  dependsOn(common)
+def autoConfigFull(cp: CrossProject): CrossProject = {
+  cp.settings(defaultSettings: _*)
+    .jvmSettings(defaultJVMSettings: _*)
+    .jsSettings(defaultJSSettings: _*)
+    .settings(
+      name := "scalajs-benchmark-" + name.value,
+      moduleName := name.value.stripPrefix("scalajs-benchmark-")
+    )
+    .dependsOn(common)
+}
 
+def autoConfig(cp: CrossProject.Builder): CrossProject = {
+  autoConfigFull(cp.crossType(CrossType.Pure))
+}
+
+lazy val deltablue = autoConfig(crossProject(JSPlatform, JVMPlatform))
 lazy val deltablueJVM = deltablue.jvm
 lazy val deltablueJS = deltablue.js
 
-lazy val richards = crossProject(JSPlatform, JVMPlatform).
-  crossType(CrossType.Pure).
-  settings(defaultSettings: _*).
-  jvmSettings(defaultJVMSettings: _*).
-  jsSettings(defaultJSSettings: _*).
-  settings(
-    name := "Scala.js Benchmarks - Richards",
-    moduleName := "richards"
-  ).
-  dependsOn(common)
-
+lazy val richards = autoConfig(crossProject(JSPlatform, JVMPlatform))
 lazy val richardsJVM = richards.jvm
 lazy val richardsJS = richards.js
 
-lazy val sudoku = crossProject(JSPlatform, JVMPlatform).
-  crossType(CrossType.Pure).
-  settings(defaultSettings: _*).
-  jvmSettings(defaultJVMSettings: _*).
-  jsSettings(defaultJSSettings: _*).
-  settings(
-    name := "Scala.js Benchmarks - Sudoku",
-    moduleName := "sudoku"
-  ).
-  dependsOn(common)
-
+lazy val sudoku = autoConfig(crossProject(JSPlatform, JVMPlatform))
 lazy val sudokuJVM = sudoku.jvm
 lazy val sudokuJS = sudoku.js
 
-lazy val tracer = crossProject(JSPlatform, JVMPlatform).
-  settings(defaultSettings: _*).
-  jvmSettings(defaultJVMSettings: _*).
-  jsSettings(defaultJSSettings: _*).
-  settings(
-    name := "Scala.js Benchmarks - Tracer",
-    moduleName := "tracer"
-  ).
-  dependsOn(common)
-
+lazy val tracer = autoConfigFull(crossProject(JSPlatform, JVMPlatform))
 lazy val tracerJVM = tracer.jvm
 lazy val tracerJS = tracer.js
 
-lazy val sha512 = crossProject(JSPlatform, JVMPlatform).
-  crossType(CrossType.Pure).
-  settings(defaultSettings: _*).
-  jvmSettings(defaultJVMSettings: _*).
-  jsSettings(defaultJSSettings: _*).
-  settings(
-    name := "Scala.js Benchmarks - SHA-512",
-    moduleName := "sha512"
-  ).
-  dependsOn(common)
-
+lazy val sha512 = autoConfig(crossProject(JSPlatform, JVMPlatform))
 lazy val sha512JVM = sha512.jvm
 lazy val sha512JS = sha512.js
 
-lazy val sha512Int = crossProject(JSPlatform, JVMPlatform).
-  crossType(CrossType.Pure).
-  settings(defaultSettings: _*).
-  jvmSettings(defaultJVMSettings: _*).
-  jsSettings(defaultJSSettings: _*).
-  settings(
-    name := "Scala.js Benchmarks - SHA-512-Int",
-    moduleName := "sha512Int"
-  ).
-  dependsOn(common)
-
+lazy val sha512Int = autoConfig(crossProject(JSPlatform, JVMPlatform))
 lazy val sha512IntJVM = sha512Int.jvm
 lazy val sha512IntJS = sha512Int.js
 
-lazy val longMicro = crossProject(JSPlatform, JVMPlatform).
-  crossType(CrossType.Pure).
-  settings(defaultSettings: _*).
-  jvmSettings(defaultJVMSettings: _*).
-  jsSettings(defaultJSSettings: _*).
-  settings(
-    name := "Scala.js Benchmarks - LongMicro",
-    moduleName := "longmicro",
+lazy val longMicro = autoConfig(crossProject(JSPlatform, JVMPlatform))
+  .settings(
     mainClass in Compile := Some("org.scalajs.benchmark.longmicro.LongMicroAll")
-  ).
-  dependsOn(common)
-
+  )
 lazy val longMicroJVM = longMicro.jvm
 lazy val longMicroJS = longMicro.js
