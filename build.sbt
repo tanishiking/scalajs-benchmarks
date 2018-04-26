@@ -1,10 +1,17 @@
 import org.scalajs.linker.CheckedBehavior.Unchecked
 import sbtcrossproject.CrossProject
 
+val createHTMLRunner = taskKey[File]("Create the HTML runner for this benchmark")
+
 val projectSettings: Seq[Setting[_]] = Seq(
   organization := "scalajs-benchmarks",
   version := "0.1-SNAPSHOT"
 )
+
+scalaJSLinkerConfig in Global := {
+  org.scalajs.linker.StandardLinker.Config()
+    .withSemantics(_.withAsInstanceOfs(Unchecked).withArrayIndexOutOfBounds(Unchecked))
+}
 
 val defaultSettings: Seq[Setting[_]] = projectSettings ++ Seq(
   scalaVersion := "2.12.5",
@@ -20,11 +27,39 @@ val defaultJVMSettings: Seq[Setting[_]] = Seq(
   fork in run := !scala.sys.env.get("TRAVIS").exists(_ == "true")
 )
 
-val defaultJSSettings: Seq[Setting[_]] = Seq(
-  scalaJSLinkerConfig ~= {
-    _.withSemantics(_.withAsInstanceOfs(Unchecked).withArrayIndexOutOfBounds(Unchecked))
-  },
-  scalaJSUseMainModuleInitializer := true
+val defaultJSSettings: Seq[Setting[_]] = Def.settings(
+  scalaJSLinkerConfig := (scalaJSLinkerConfig in ThisBuild).value,
+  scalaJSUseMainModuleInitializer := true,
+
+  inConfig(Compile)(Def.settings(
+    createHTMLRunner := {
+      val jsFile = fastOptJS.value.data
+      val jsFileName = jsFile.getName
+      val htmlFile = jsFile.getParentFile / (jsFileName.stripSuffix(".js") + ".html")
+      val title = name.value
+      val mainClassName = mainClass.value.getOrElse {
+        throw new Exception("Oops, no main class")
+      }
+      val content = s"""
+        |<!DOCTYPE html>
+        |<html>
+        |  <head>
+        |    <title>$title</title>
+        |    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+        |  </head>
+        |  <body>
+        |    <script type="text/javascript" src="$jsFileName"></script>
+        |    <script type="text/javascript">
+        |      setupHTMLBenchmark("$mainClassName");
+        |    </script>
+        |  </body>
+        |</html>
+      """.stripMargin
+      IO.write(htmlFile, content)
+      streams.value.log.info(htmlFile.toURI.toASCIIString)
+      htmlFile
+    }
+  ))
 )
 
 lazy val parent = project.in(file(".")).
