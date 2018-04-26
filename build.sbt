@@ -1,6 +1,7 @@
 import org.scalajs.linker.CheckedBehavior.Unchecked
 import sbtcrossproject.CrossProject
 
+val setupPrefixPropertyCode = taskKey[String]("JS code to setup the prefix property")
 val createHTMLRunner = taskKey[File]("Create the HTML runner for this benchmark")
 
 val projectSettings: Seq[Setting[_]] = Seq(
@@ -8,10 +9,8 @@ val projectSettings: Seq[Setting[_]] = Seq(
   version := "0.1-SNAPSHOT"
 )
 
-scalaJSLinkerConfig in Global := {
+scalaJSLinkerConfig in Global :=
   org.scalajs.linker.StandardLinker.Config()
-    .withSemantics(_.withAsInstanceOfs(Unchecked).withArrayIndexOutOfBounds(Unchecked))
-}
 
 val defaultSettings: Seq[Setting[_]] = projectSettings ++ Seq(
   scalaVersion := "2.12.5",
@@ -23,8 +22,17 @@ val defaultSettings: Seq[Setting[_]] = projectSettings ++ Seq(
   )
 )
 
-val defaultJVMSettings: Seq[Setting[_]] = Seq(
-  fork in run := !scala.sys.env.get("TRAVIS").exists(_ == "true")
+val defaultJVMSettings: Seq[Setting[_]] = Def.settings(
+  fork in run := !scala.sys.env.get("TRAVIS").exists(_ == "true"),
+
+  inConfig(Compile)(Def.settings(
+    javaOptions += {
+      val benchmarkName = moduleName.value
+      val compiler = "JVM"
+      val prefix = s"$benchmarkName;$compiler;;;;;"
+      s"-Dbenchmark.prefix=$prefix"
+    }
+  ))
 )
 
 val defaultJSSettings: Seq[Setting[_]] = Def.settings(
@@ -32,6 +40,30 @@ val defaultJSSettings: Seq[Setting[_]] = Def.settings(
   scalaJSUseMainModuleInitializer := true,
 
   inConfig(Compile)(Def.settings(
+    setupPrefixPropertyCode := {
+      val benchmarkName = moduleName.value
+      val linkerConfig = scalaJSLinkerConfig.value
+      val compiler = "Scala.js"
+      val es2015 = if (linkerConfig.esFeatures.useECMAScript2015) "es2015" else "es5.1"
+      val ubChecks = if (linkerConfig.semantics.productionMode) "prod" else "dev"
+      val optimizer = if (linkerConfig.optimizer) "opt" else "no-opt"
+      val gcc = if (linkerConfig.closureCompiler) "gcc" else "no-gcc"
+      val prefix = s"$benchmarkName;$compiler;$es2015;$ubChecks;$optimizer;$gcc;"
+      val code = {
+        "var __ScalaJSEnv = (typeof __ScalaJSEnv === \"object\" && __ScalaJSEnv) ? __ScalaJSEnv : {}; " +
+        s"__ScalaJSEnv.javaSystemProperties = { 'benchmark.prefix':'$prefix' };"
+      }
+      code
+    },
+
+    jsExecutionFiles := {
+      val prev = jsExecutionFiles.value
+      val code = setupPrefixPropertyCode.value
+      val vf = new org.scalajs.io.MemVirtualJSFile("setupsysprops.js")
+        .withContent(code)
+      vf +: prev
+    },
+
     createHTMLRunner := {
       val jsFile = fastOptJS.value.data
       val jsFileName = jsFile.getName
@@ -48,6 +80,9 @@ val defaultJSSettings: Seq[Setting[_]] = Def.settings(
         |    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
         |  </head>
         |  <body>
+        |    <script type="text/javascript">
+        |      ${setupPrefixPropertyCode.value}
+        |    </script>
         |    <script type="text/javascript" src="$jsFileName"></script>
         |    <script type="text/javascript">
         |      setupHTMLBenchmark("$mainClassName");

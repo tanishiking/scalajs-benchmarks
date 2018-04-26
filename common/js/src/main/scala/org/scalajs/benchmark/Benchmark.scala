@@ -17,6 +17,22 @@ import scala.scalajs.reflect.Reflect
 import org.scalajs.benchmark.dom._
 
 object Benchmark {
+  private val userAgent = {
+    if (js.typeOf(js.Dynamic.global.process) != "undefined") {
+      "Node.js"
+    } else if (js.typeOf(js.Dynamic.global.navigator) != "undefined") {
+      val userAgent = js.Dynamic.global.navigator.userAgent.asInstanceOf[String]
+      if (userAgent.contains("Chrome"))
+        "Chrome"
+      else if (userAgent.contains("Firefox"))
+        "Firefox"
+      else
+        "Unknown"
+    } else {
+      "Unknown"
+    }
+  }
+
   @JSExportTopLevel("setupHTMLBenchmark")
   def setupHTMLBenchmark(className: String): Unit = {
     val clazz = Reflect.lookupLoadableModuleClass(className + "$").getOrElse {
@@ -55,10 +71,8 @@ abstract class Benchmark {
   }
 
   def main(args: Array[String]): Unit = {
-    if (js.typeOf(js.Dynamic.global.window) == "undefined") {
-      val status = report()
-      println(s"$prefix: $status")
-    }
+    if (js.typeOf(js.Dynamic.global.window) == "undefined")
+      println(report())
   }
 
   def mainHTML(): Unit = {
@@ -170,6 +184,8 @@ abstract class Benchmark {
     val (mean, sem) = runBenchmark(3000, 20)
     tearDown()
 
-    s"$mean us +- $sem us"
+    val reportPrefix =
+      System.getProperty("benchmark.prefix", prefix + ": ")
+    s"$reportPrefix${Benchmark.userAgent};$mean;$sem"
   }
 }

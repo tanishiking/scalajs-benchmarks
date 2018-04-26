@@ -23,8 +23,7 @@ abstract class Benchmark {
   }
 
   def main(): Unit = {
-    val status = report()
-    println(s"$prefix: $status")
+    println(report())
   }
 
   /** This method should be implemented by the concrete benchmark.
@@ -99,6 +98,8 @@ abstract class Benchmark {
     val (mean, sem) = runBenchmark(3000, 20)
     tearDown()
 
-    s"$mean us +- $sem us"
+    val reportPrefix =
+      System.getProperty("benchmark.prefix", prefix + ": ")
+    s"${reportPrefix}JVM;$mean;$sem"
   }
 }
