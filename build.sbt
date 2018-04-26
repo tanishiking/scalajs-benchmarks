@@ -163,3 +163,43 @@ lazy val longMicroJS = longMicro.js
 lazy val kmeans = autoConfig(crossProject(JSPlatform, JVMPlatform))
 lazy val kmeansJVM = kmeans.jvm
 lazy val kmeansJS = kmeans.js
+
+lazy val bounce = autoConfig(crossProject(JSPlatform, JVMPlatform))
+lazy val bounceJVM = bounce.jvm
+lazy val bounceJS = bounce.js
+
+lazy val cd = autoConfig(crossProject(JSPlatform, JVMPlatform))
+lazy val cdJVM = cd.jvm
+lazy val cdJS = cd.js
+
+lazy val gcbench = autoConfig(crossProject(JSPlatform, JVMPlatform))
+lazy val gcbenchJVM = gcbench.jvm
+lazy val gcbenchJS = gcbench.js
+
+lazy val mandelbrot = autoConfig(crossProject(JSPlatform, JVMPlatform))
+lazy val mandelbrotJVM = mandelbrot.jvm
+lazy val mandelbrotJS = mandelbrot.js
+
+lazy val permute = autoConfig(crossProject(JSPlatform, JVMPlatform))
+lazy val permuteJVM = permute.jvm
+lazy val permuteJS = permute.js
+
+lazy val brainfuck = autoConfig(crossProject(JSPlatform, JVMPlatform))
+lazy val brainfuckJVM = brainfuck.jvm
+lazy val brainfuckJS = brainfuck.js
+
+lazy val json = autoConfig(crossProject(JSPlatform, JVMPlatform))
+lazy val jsonJVM = json.jvm
+lazy val jsonJS = json.js
+
+lazy val list = autoConfig(crossProject(JSPlatform, JVMPlatform))
+lazy val listJVM = list.jvm
+lazy val listJS = list.js
+
+lazy val nbody = autoConfig(crossProject(JSPlatform, JVMPlatform))
+lazy val nbodyJVM = nbody.jvm
+lazy val nbodyJS = nbody.js
+
+lazy val queens = autoConfig(crossProject(JSPlatform, JVMPlatform))
+lazy val queensJVM = queens.jvm
+lazy val queensJS = queens.js
