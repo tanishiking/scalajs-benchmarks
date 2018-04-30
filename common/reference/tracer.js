@@ -1,3 +1,5 @@
+"use strict";
+
 // The ray tracer code in this file is written by Adam Burmister. It
 // is available in its original form from:
 //
@@ -900,4 +902,4 @@ function renderScene(){
 }
 
 // Run the benchmark
-Benchmark.report("Tracer", renderScene, renderScene);
+Benchmark.main("Tracer", renderScene);

@@ -129,6 +129,61 @@ def autoConfig(cp: CrossProject.Builder): CrossProject = {
   autoConfigFull(cp.crossType(CrossType.Pure))
 }
 
+def autoConfigJSRef(p: Project, jsFile: String, benchmarkFunName: String): Project = {
+  val theName = p.id.stripSuffix("JSRef")
+  p.in(file("references/" + theName))
+    .enablePlugins(ScalaJSPlugin)
+    .settings(projectSettings: _*)
+    .settings(
+      name := theName,
+
+      inConfig(Compile)(Def.settings(
+        scalaJSUseMainModuleInitializer := true,
+        mainClass := Some(name.value),
+        jsExecutionFiles := {
+          val dir = (baseDirectory in parent).value / "common/reference"
+          val files = Seq(dir / "bench.js", dir / jsFile)
+          for (f <- files)
+            yield new org.scalajs.io.FileVirtualJSFile(f)
+        },
+
+        createHTMLRunner := {
+          val dir = (baseDirectory in parent).value / "common/reference"
+          val jsFileURI1 = (dir / "bench.js").toURI.toASCIIString
+          val jsFileURI2 = (dir / jsFile).toURI.toASCIIString
+
+          val trg = target.value
+          val htmlFile = trg / (theName + ".html")
+          val title = name.value
+
+          val content = s"""
+            |<!DOCTYPE html>
+            |<html>
+            |  <head>
+            |    <title>$title</title>
+            |    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+            |  </head>
+            |  <body>
+            |    <script type="text/javascript" src="$jsFileURI1"></script>
+            |    <script type="text/javascript" src="$jsFileURI2"></script>
+            |    <script type="text/javascript">
+            |      Benchmark.mainHTML("$title", $benchmarkFunName);
+            |    </script>
+            |  </body>
+            |</html>
+          """.stripMargin
+          IO.write(htmlFile, content)
+          streams.value.log.info(htmlFile.toURI.toASCIIString)
+          htmlFile
+        }
+      ))
+    )
+}
+
+lazy val deltablueJSRef = autoConfigJSRef(project, "deltablue.js", "deltaBlue")
+lazy val richardsJSRef = autoConfigJSRef(project, "richards.js", "runRichards")
+lazy val tracerJSRef = autoConfigJSRef(project, "tracer.js", "renderScene")
+
 lazy val deltablue = autoConfig(crossProject(JSPlatform, JVMPlatform))
 lazy val deltablueJVM = deltablue.jvm
 lazy val deltablueJS = deltablue.js

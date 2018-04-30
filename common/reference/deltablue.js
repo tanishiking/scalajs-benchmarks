@@ -1,3 +1,5 @@
+"use strict";
+
 // Copyright 2008 the V8 project authors. All rights reserved.
 // Copyright 1996 John Maloney and Mario Wolczko.
 
@@ -875,4 +877,4 @@ function deltaBlue() {
 }
 
 // Run the benchmark
-Benchmark.report('DeltaBlue', deltaBlue, deltaBlue);
+Benchmark.main('DeltaBlue', deltaBlue);
