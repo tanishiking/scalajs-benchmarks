@@ -100,8 +100,32 @@ lazy val parent = project.in(file(".")).
   settings(projectSettings: _*).
   settings(
     name := "scalajs-benchmarks",
-    publishArtifact in Compile := false
+    publishArtifact in Compile := false,
+    clean := clean.dependsOn(allProjects.map(clean in _): _*).value
   )
+
+lazy val allProjects = Seq(
+    commonJVM, commonJS,
+    deltablueJSRef, richardsJSRef, tracerJSRef,
+    deltablueJVM, deltablueJS,
+    richardsJVM, richardsJS,
+    sudokuJVM, sudokuJS,
+    tracerJVM, tracerJS,
+    sha512JVM, sha512JS,
+    sha512IntJVM, sha512IntJS,
+    longMicroJVM, longMicroJS,
+    kmeansJVM, kmeansJS,
+    bounceJVM, bounceJS,
+    cdJVM, cdJS,
+    gcbenchJVM, gcbenchJS,
+    mandelbrotJVM, mandelbrotJS,
+    permuteJVM, permuteJS,
+    brainfuckJVM, brainfuckJS,
+    jsonJVM, jsonJS,
+    listJVM, listJS,
+    nbodyJVM, nbodyJS,
+    queensJVM, queensJS
+)
 
 lazy val common = crossProject(JSPlatform, JVMPlatform).
   settings(defaultSettings: _*).
@@ -130,6 +154,7 @@ def autoConfig(cp: CrossProject.Builder): CrossProject = {
 
 def autoConfigJSRef(p: Project, jsFile: String, benchmarkFunName: String): Project = {
   val theName = p.id.stripSuffix("JSRef")
+  val parent = LocalProject("parent")
   p.in(file("references/" + theName))
     .enablePlugins(ScalaJSPlugin)
     .settings(projectSettings: _*)
