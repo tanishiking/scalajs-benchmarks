@@ -13,7 +13,7 @@ scalaJSLinkerConfig in Global :=
   org.scalajs.linker.StandardLinker.Config()
 
 val defaultSettings: Seq[Setting[_]] = projectSettings ++ Seq(
-  scalaVersion := "2.12.5",
+  scalaVersion := "2.12.8",
   scalacOptions ++= Seq(
       "-deprecation",
       "-unchecked",
