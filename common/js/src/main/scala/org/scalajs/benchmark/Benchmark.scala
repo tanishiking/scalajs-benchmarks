@@ -179,13 +179,17 @@ abstract class Benchmark {
   }
 
   def report(): String = {
+    import js.Dynamic.{global => g}
+
     setUp()
     warmUp()
     val (mean, sem) = runBenchmark(3000, 20)
     tearDown()
 
     val reportPrefix =
-      System.getProperty("benchmark.prefix", prefix + ": ")
+      if (js.typeOf(g.ScalaJSBenchmarkPrefix) != "string") prefix + ": "
+      else g.ScalaJSBenchmarkPrefix.asInstanceOf[String]
+
     s"$reportPrefix${Benchmark.userAgent};$mean;$sem"
   }
 }

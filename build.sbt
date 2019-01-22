@@ -49,17 +49,15 @@ val defaultJSSettings: Seq[Setting[_]] = Def.settings(
       val optimizer = if (linkerConfig.optimizer) "opt" else "no-opt"
       val gcc = if (linkerConfig.closureCompiler) "gcc" else "no-gcc"
       val prefix = s"$benchmarkName;$compiler;$es2015;$ubChecks;$optimizer;$gcc;"
-      val code = {
-        "var __ScalaJSEnv = (typeof __ScalaJSEnv === \"object\" && __ScalaJSEnv) ? __ScalaJSEnv : {}; " +
-        s"__ScalaJSEnv.javaSystemProperties = { 'benchmark.prefix':'$prefix' };"
-      }
+      val code = s"var ScalaJSBenchmarkPrefix = '$prefix';"
       code
     },
 
     jsExecutionFiles := {
       val prev = jsExecutionFiles.value
       val code = setupPrefixPropertyCode.value
-      val vf = org.scalajs.io.MemVirtualBinaryFile.fromStringUTF8("setupsysprops.js", code)
+      val vf = org.scalajs.io.MemVirtualBinaryFile.fromStringUTF8(
+          "setup-prefix-property.js", code)
       vf +: prev
     },
 
