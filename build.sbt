@@ -59,8 +59,7 @@ val defaultJSSettings: Seq[Setting[_]] = Def.settings(
     jsExecutionFiles := {
       val prev = jsExecutionFiles.value
       val code = setupPrefixPropertyCode.value
-      val vf = new org.scalajs.io.MemVirtualJSFile("setupsysprops.js")
-        .withContent(code)
+      val vf = org.scalajs.io.MemVirtualBinaryFile.fromStringUTF8("setupsysprops.js", code)
       vf +: prev
     },
 
@@ -144,7 +143,7 @@ def autoConfigJSRef(p: Project, jsFile: String, benchmarkFunName: String): Proje
           val dir = (baseDirectory in parent).value / "common/reference"
           val files = Seq(dir / "bench.js", dir / jsFile)
           for (f <- files)
-            yield new org.scalajs.io.FileVirtualJSFile(f)
+            yield new org.scalajs.io.FileVirtualBinaryFile(f)
         },
 
         createHTMLRunner := {
