@@ -1,5 +1,7 @@
-import org.scalajs.linker.CheckedBehavior.Unchecked
+import org.scalajs.linker.interface.CheckedBehavior.Unchecked
 import sbtcrossproject.CrossProject
+
+import org.scalajs.jsenv.Input
 
 val setupPrefixPropertyCode = taskKey[String]("JS code to setup the prefix property")
 val createHTMLRunner = taskKey[File]("Create the HTML runner for this benchmark")
@@ -10,7 +12,7 @@ val projectSettings: Seq[Setting[_]] = Seq(
 )
 
 scalaJSLinkerConfig in Global :=
-  org.scalajs.linker.StandardLinker.Config()
+  org.scalajs.linker.interface.StandardConfig()
 
 val defaultSettings: Seq[Setting[_]] = projectSettings ++ Seq(
   scalaVersion := "2.12.8",
@@ -53,12 +55,13 @@ val defaultJSSettings: Seq[Setting[_]] = Def.settings(
       code
     },
 
-    jsExecutionFiles := {
-      val prev = jsExecutionFiles.value
+    jsEnvInput := {
+      val prev = jsEnvInput.value
       val code = setupPrefixPropertyCode.value
-      val vf = org.scalajs.io.MemVirtualBinaryFile.fromStringUTF8(
-          "setup-prefix-property.js", code)
-      vf +: prev
+      val path = java.nio.file.Files.write(
+          com.google.common.jimfs.Jimfs.newFileSystem().getPath("setup-prefix-property.js"),
+          code.getBytes(java.nio.charset.StandardCharsets.UTF_8))
+      Input.Script(path) +: prev
     },
 
     createHTMLRunner := {
@@ -162,11 +165,10 @@ def autoConfigJSRef(p: Project, jsFile: String, benchmarkFunName: String): Proje
       inConfig(Compile)(Def.settings(
         scalaJSUseMainModuleInitializer := true,
         mainClass := Some(name.value),
-        jsExecutionFiles := {
+        jsEnvInput := {
           val dir = (baseDirectory in parent).value / "common/reference"
-          val files = Seq(dir / "bench.js", dir / jsFile)
-          for (f <- files)
-            yield new org.scalajs.io.FileVirtualBinaryFile(f)
+          val files = List(dir / "bench.js", dir / jsFile)
+          files.map(f => Input.Script(f.toPath))
         },
 
         createHTMLRunner := {
