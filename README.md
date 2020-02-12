@@ -1,7 +1,7 @@
 # Scala.js Benchmarks
 
 [![Build Status](https://travis-ci.org/sjrd/scalajs-benchmarks.svg?branch=master)](https://travis-ci.org/sjrd/scalajs-benchmarks)
-[![Scala.js](https://www.scala-js.org/assets/badges/scalajs-0.6.8.svg)](https://www.scala-js.org/)
+[![Scala.js](https://www.scala-js.org/assets/badges/scalajs-1.0.0.svg)](https://www.scala-js.org/)
 
 Benchmarks for [Scala.js](https://www.scala-js.org/)
 
