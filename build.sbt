@@ -115,6 +115,7 @@ lazy val allProjects = Seq(
     sha512JVM, sha512JS,
     sha512IntJVM, sha512IntJS,
     longMicroJVM, longMicroJS,
+    intMicroJVM, intMicroJS,
     kmeansJVM, kmeansJS,
     bounceJVM, bounceJS,
     cdJVM, cdJS,
@@ -238,6 +239,13 @@ lazy val longMicro = autoConfig(crossProject(JSPlatform, JVMPlatform))
   )
 lazy val longMicroJVM = longMicro.jvm
 lazy val longMicroJS = longMicro.js
+
+lazy val intMicro = autoConfig(crossProject(JSPlatform, JVMPlatform))
+  .settings(
+    mainClass in Compile := Some("org.scalajs.benchmark.intmicro.IntMicroAll")
+  )
+lazy val intMicroJVM = intMicro.jvm
+lazy val intMicroJS = intMicro.js
 
 lazy val kmeans = autoConfig(crossProject(JSPlatform, JVMPlatform))
 lazy val kmeansJVM = kmeans.jvm
