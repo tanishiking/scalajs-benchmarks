@@ -7,6 +7,6 @@ script:
   - sbt ++$TRAVIS_SCALA_VERSION sudokuJVM/run sudokuJS/run 'set scalaJSStage in Global := FullOptStage' sudokuJS/run
   - sbt ++$TRAVIS_SCALA_VERSION sha512JVM/run sha512JS/run 'set scalaJSStage in Global := FullOptStage' sha512JS/run
 scala:
-  - 2.12.10
+  - 2.12.12
 jdk:
   - openjdk8
