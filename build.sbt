@@ -77,6 +77,17 @@ val defaultJSSettings: Seq[Setting[_]] = Def.settings(
       val mainClassName = mainClass.value.getOrElse {
         throw new Exception("Oops, no main class")
       }
+
+      val isModule = scalaJSLinkerConfig.value.moduleKind match {
+        case ModuleKind.NoModule => false
+        case ModuleKind.ESModule => true
+
+        case ModuleKind.CommonJSModule =>
+          throw new MessageOnlyException("Cannot use `createHTMLRunner` with CommonJS modules")
+      }
+
+      val scriptType = if (isModule) "module" else "text/javascript"
+
       val content = s"""
         |<!DOCTYPE html>
         |<html>
@@ -88,8 +99,9 @@ val defaultJSSettings: Seq[Setting[_]] = Def.settings(
         |    <script type="text/javascript">
         |      ${setupPrefixPropertyCode.value}
         |    </script>
-        |    <script type="text/javascript" src="$jsFileName"></script>
-        |    <script type="text/javascript">
+        |    ${if (!isModule) s"<script type='$scriptType' src='./$jsFileName'></script>" else ""}
+        |    <script type="$scriptType">
+        |      ${if (isModule) s"import { setupHTMLBenchmark } from './$jsFileName';" else ""}
         |      setupHTMLBenchmark("$mainClassName");
         |    </script>
         |  </body>
