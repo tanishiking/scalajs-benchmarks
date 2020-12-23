@@ -44,7 +44,8 @@ object QueensBenchmark extends communitybench.Benchmark {
   }
 
   def placeQueen(c: Int): Boolean = {
-    (0 until 8).foreach { r =>
+    var r = 0
+    while (r < 8) {
       if (getRowColumn(r, c)) {
         queenRows(r) = c
         setRowColumn(r, c, false)
@@ -58,6 +59,7 @@ object QueensBenchmark extends communitybench.Benchmark {
         }
         setRowColumn(r, c, true)
       }
+      r += 1
     }
     false
   }
