@@ -91,7 +91,7 @@ abstract class Benchmark {
     runButton.textContent = "Run benchmarks"
     body.appendChild(runButton)
 
-    val statusText = document.createElement("p")
+    val statusText = document.createElement("pre")
     body.appendChild(statusText)
 
     runButton.onclick = { () =>
