@@ -47,10 +47,15 @@ val defaultJSSettings: Seq[Setting[_]] = Def.settings(
       val linkerConfig = scalaJSLinkerConfig.value
       val compiler = "Scala.js"
       val es2015 = if (linkerConfig.esFeatures.useECMAScript2015) "es2015" else "es5.1"
+      val moduleKind = linkerConfig.moduleKind match {
+        case ModuleKind.NoModule       => "script"
+        case ModuleKind.ESModule       => "esmodule"
+        case ModuleKind.CommonJSModule => "commonjs"
+      }
       val ubChecks = if (linkerConfig.semantics.productionMode) "prod" else "dev"
       val optimizer = if (linkerConfig.optimizer) "opt" else "no-opt"
       val gcc = if (linkerConfig.closureCompiler) "gcc" else "no-gcc"
-      val prefix = s"$benchmarkName;$compiler;$es2015;$ubChecks;$optimizer;$gcc;"
+      val prefix = s"$benchmarkName-$es2015-$moduleKind-$ubChecks-$optimizer-$gcc-"
       val code = s"var ScalaJSBenchmarkPrefix = '$prefix';"
       code
     },
