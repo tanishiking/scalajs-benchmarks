@@ -186,10 +186,7 @@ abstract class Benchmark {
     val (mean, sem) = runBenchmark(3000, 20)
     tearDown()
 
-    val reportPrefix =
-      if (js.typeOf(g.ScalaJSBenchmarkPrefix) != "string") prefix + ": "
-      else g.ScalaJSBenchmarkPrefix.asInstanceOf[String]
-
-    s"$reportPrefix${Benchmark.userAgent};$mean;$sem"
+    val envInfo = g.ScalaJSBenchEnvInfo.asInstanceOf[String]
+    s"$prefix;$envInfo;${Benchmark.userAgent};$mean;$sem"
   }
 }

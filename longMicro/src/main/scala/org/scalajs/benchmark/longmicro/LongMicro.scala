@@ -31,11 +31,8 @@ object LongMicroAll extends org.scalajs.benchmark.Benchmark {
       bench.main(args)
   }
 
-  override def report(): String = {
-    val reports = for (bench <- allBenches)
-      yield bench.prefix + ": " + bench.report() + " -- "
-    reports.foldLeft("")(_ + _)
-  }
+  override def report(): String =
+    allBenches.map(_.report()).mkString("\n")
 
   def run(): Unit = ???
 }

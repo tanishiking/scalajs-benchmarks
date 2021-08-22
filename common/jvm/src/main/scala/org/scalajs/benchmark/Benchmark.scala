@@ -98,8 +98,7 @@ abstract class Benchmark {
     val (mean, sem) = runBenchmark(3000, 20)
     tearDown()
 
-    val reportPrefix =
-      System.getProperty("benchmark.prefix", prefix + ": ")
-    s"${reportPrefix}JVM;$mean;$sem"
+    val envInfo = System.getProperty("benchmark.envInfo")
+    s"$prefix;$envInfo;JVM;$mean;$sem"
   }
 }

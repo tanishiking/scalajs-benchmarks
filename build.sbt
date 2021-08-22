@@ -24,9 +24,9 @@ val defaultSettings: Seq[Setting[_]] = projectSettings ++ Seq(
   )
 )
 
-def benchPrefix(benchmarkName: String, compiler: String, esVersion: String,
+def envInfo(compiler: String, esVersion: String,
     moduleKind: String, ubChecks: String, optimizer: String, gcc: String): String = {
-  List(benchmarkName, compiler, esVersion, moduleKind, ubChecks, optimizer, gcc).mkString(";")
+  List(compiler, esVersion, moduleKind, ubChecks, optimizer, gcc).mkString(";")
 }
 
 val defaultJVMSettings: Seq[Setting[_]] = Def.settings(
@@ -34,8 +34,7 @@ val defaultJVMSettings: Seq[Setting[_]] = Def.settings(
 
   inConfig(Compile)(Def.settings(
     javaOptions += {
-      val prefix = benchPrefix(
-          benchmarkName = moduleName.value,
+      val info = envInfo(
           compiler = "JVM",
           esVersion = "",
           moduleKind = "",
@@ -43,7 +42,7 @@ val defaultJVMSettings: Seq[Setting[_]] = Def.settings(
           optimizer = "",
           gcc = ""
       )
-      s"-Dbenchmark.prefix=$prefix"
+      s"-Dbenchmark.envInfo=$info"
     }
   ))
 )
@@ -56,8 +55,7 @@ val defaultJSSettings: Seq[Setting[_]] = Def.settings(
     setupPrefixPropertyCode := {
       val linkerConfig = scalaJSLinkerConfig.value
 
-      val prefix = benchPrefix(
-          benchmarkName = moduleName.value,
+      val info = envInfo(
           compiler = "Scala.js",
           esVersion = if (linkerConfig.esFeatures.useECMAScript2015) "es2015" else "es5.1",
           moduleKind = linkerConfig.moduleKind match {
@@ -69,7 +67,7 @@ val defaultJSSettings: Seq[Setting[_]] = Def.settings(
           optimizer = if (linkerConfig.optimizer) "opt" else "no-opt",
           gcc = if (linkerConfig.closureCompiler) "gcc" else "no-gcc",
       )
-      val code = s"var ScalaJSBenchmarkPrefix = '$prefix';"
+      val code = s"var ScalaJSBenchEnvInfo = '$info';"
       code
     },
 
