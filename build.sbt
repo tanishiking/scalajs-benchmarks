@@ -130,7 +130,9 @@ lazy val parent = project.in(file(".")).
   settings(
     name := "scalajs-benchmarks",
     publishArtifact in Compile := false,
-    clean := clean.dependsOn(allProjects.map(clean in _): _*).value
+    clean := clean.dependsOn(allProjects.map(clean in _): _*).value,
+    compile in Compile := (compile in Compile)
+        .dependsOn(allProjects.map(compile in _ in Compile): _*).value
   )
 
 lazy val allProjects = Seq(
