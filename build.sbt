@@ -24,15 +24,25 @@ val defaultSettings: Seq[Setting[_]] = projectSettings ++ Seq(
   )
 )
 
+def envInfo(compiler: String, esVersion: String,
+    moduleKind: String, ubChecks: String, optimizer: String, gcc: String): String = {
+  List(compiler, esVersion, moduleKind, ubChecks, optimizer, gcc).mkString(";")
+}
+
 val defaultJVMSettings: Seq[Setting[_]] = Def.settings(
   fork in run := !scala.sys.env.get("TRAVIS").exists(_ == "true"),
 
   inConfig(Compile)(Def.settings(
     javaOptions += {
-      val benchmarkName = moduleName.value
-      val compiler = "JVM"
-      val prefix = s"$benchmarkName;$compiler;;;;;"
-      s"-Dbenchmark.prefix=$prefix"
+      val info = envInfo(
+          compiler = "JVM",
+          esVersion = "",
+          moduleKind = "",
+          ubChecks = "",
+          optimizer = "",
+          gcc = ""
+      )
+      s"-Dbenchmark.envInfo=$info"
     }
   ))
 )
@@ -43,20 +53,21 @@ val defaultJSSettings: Seq[Setting[_]] = Def.settings(
 
   inConfig(Compile)(Def.settings(
     setupPrefixPropertyCode := {
-      val benchmarkName = moduleName.value
       val linkerConfig = scalaJSLinkerConfig.value
-      val compiler = "Scala.js"
-      val es2015 = if (linkerConfig.esFeatures.useECMAScript2015) "es2015" else "es5.1"
-      val moduleKind = linkerConfig.moduleKind match {
-        case ModuleKind.NoModule       => "script"
-        case ModuleKind.ESModule       => "esmodule"
-        case ModuleKind.CommonJSModule => "commonjs"
-      }
-      val ubChecks = if (linkerConfig.semantics.productionMode) "prod" else "dev"
-      val optimizer = if (linkerConfig.optimizer) "opt" else "no-opt"
-      val gcc = if (linkerConfig.closureCompiler) "gcc" else "no-gcc"
-      val prefix = s"$benchmarkName-$es2015-$moduleKind-$ubChecks-$optimizer-$gcc-"
-      val code = s"var ScalaJSBenchmarkPrefix = '$prefix';"
+
+      val info = envInfo(
+          compiler = "Scala.js",
+          esVersion = if (linkerConfig.esFeatures.useECMAScript2015) "es2015" else "es5.1",
+          moduleKind = linkerConfig.moduleKind match {
+            case ModuleKind.NoModule       => "script"
+            case ModuleKind.ESModule       => "esmodule"
+            case ModuleKind.CommonJSModule => "commonjs"
+          },
+          ubChecks = if (linkerConfig.semantics.productionMode) "prod" else "dev",
+          optimizer = if (linkerConfig.optimizer) "opt" else "no-opt",
+          gcc = if (linkerConfig.closureCompiler) "gcc" else "no-gcc",
+      )
+      val code = s"var ScalaJSBenchEnvInfo = '$info';"
       code
     },
 
@@ -119,7 +130,9 @@ lazy val parent = project.in(file(".")).
   settings(
     name := "scalajs-benchmarks",
     publishArtifact in Compile := false,
-    clean := clean.dependsOn(allProjects.map(clean in _): _*).value
+    clean := clean.dependsOn(allProjects.map(clean in _): _*).value,
+    compile in Compile := (compile in Compile)
+        .dependsOn(allProjects.map(compile in _ in Compile): _*).value
   )
 
 lazy val allProjects = Seq(
