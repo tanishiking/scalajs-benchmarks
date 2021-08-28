@@ -235,6 +235,13 @@ def autoConfigJSRef(p: Project, jsFile: String, benchmarkFunName: String): Proje
     )
 }
 
+lazy val arrayBuilderMicro = autoConfig(crossProject(JSPlatform, JVMPlatform))
+  .settings(
+    mainClass in Compile := Some("org.scalajs.benchmark.arraybuildermicro.ArrayBuilderMicroAll")
+  )
+lazy val arrayBuilderMicroJVM = arrayBuilderMicro.jvm
+lazy val arrayBuilderMicroJS = arrayBuilderMicro.js
+
 lazy val deltablueJSRef = autoConfigJSRef(project, "deltablue.js", "deltaBlue")
 lazy val richardsJSRef = autoConfigJSRef(project, "richards.js", "runRichards")
 lazy val tracerJSRef = autoConfigJSRef(project, "tracer.js", "renderScene")
