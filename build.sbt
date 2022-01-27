@@ -154,6 +154,7 @@ lazy val allProjects = Seq(
     richardsJVM, richardsJS,
     sudokuJVM, sudokuJS,
     tracerJVM, tracerJS,
+    tracerFloatJVM, tracerFloatJS,
     sha512JVM, sha512JS,
     sha512IntJVM, sha512IntJS,
     longMicroJVM, longMicroJS,
@@ -273,6 +274,10 @@ lazy val sudokuJS = sudoku.js
 lazy val tracer = autoConfigFull(crossProject(JSPlatform, JVMPlatform))
 lazy val tracerJVM = tracer.jvm
 lazy val tracerJS = tracer.js
+
+lazy val tracerFloat = autoConfigFull(crossProject(JSPlatform, JVMPlatform))
+lazy val tracerFloatJVM = tracerFloat.jvm
+lazy val tracerFloatJS = tracerFloat.js
 
 lazy val sha512 = autoConfig(crossProject(JSPlatform, JVMPlatform))
 lazy val sha512JVM = sha512.jvm
