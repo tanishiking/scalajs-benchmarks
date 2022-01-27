@@ -1,4 +1,5 @@
 import org.scalajs.linker.interface.CheckedBehavior.Unchecked
+import org.scalajs.linker.interface.ESVersion
 import sbtcrossproject.CrossProject
 
 import org.scalajs.jsenv.Input
@@ -15,7 +16,7 @@ scalaJSLinkerConfig in Global :=
   org.scalajs.linker.interface.StandardConfig()
 
 val defaultSettings: Seq[Setting[_]] = projectSettings ++ Seq(
-  scalaVersion := "2.12.12",
+  scalaVersion := "2.12.15",
   scalacOptions ++= Seq(
       "-deprecation",
       "-unchecked",
@@ -30,7 +31,7 @@ def envInfo(compiler: String, esVersion: String,
 }
 
 val defaultJVMSettings: Seq[Setting[_]] = Def.settings(
-  fork in run := !scala.sys.env.get("TRAVIS").exists(_ == "true"),
+  run / fork := !scala.sys.env.get("TRAVIS").exists(_ == "true"),
 
   inConfig(Compile)(Def.settings(
     javaOptions += {
@@ -47,8 +48,19 @@ val defaultJVMSettings: Seq[Setting[_]] = Def.settings(
   ))
 )
 
+def esVersionToString(esVersion: ESVersion): String = esVersion match {
+  case ESVersion.ES5_1  => "es5.1"
+  case ESVersion.ES2015 => "es2015"
+  case ESVersion.ES2016 => "es2016"
+  case ESVersion.ES2017 => "es2017"
+  case ESVersion.ES2018 => "es2018"
+  case ESVersion.ES2019 => "es2019"
+  case ESVersion.ES2020 => "es2020"
+  case ESVersion.ES2021 => "es2021"
+}
+
 val defaultJSSettings: Seq[Setting[_]] = Def.settings(
-  scalaJSLinkerConfig := (scalaJSLinkerConfig in ThisBuild).value,
+  scalaJSLinkerConfig := (ThisBuild / scalaJSLinkerConfig).value,
   scalaJSUseMainModuleInitializer := true,
 
   inConfig(Compile)(Def.settings(
@@ -57,7 +69,7 @@ val defaultJSSettings: Seq[Setting[_]] = Def.settings(
 
       val info = envInfo(
           compiler = "Scala.js",
-          esVersion = if (linkerConfig.esFeatures.useECMAScript2015) "es2015" else "es5.1",
+          esVersion = esVersionToString(linkerConfig.esFeatures.esVersion),
           moduleKind = linkerConfig.moduleKind match {
             case ModuleKind.NoModule       => "script"
             case ModuleKind.ESModule       => "esmodule"
@@ -129,10 +141,10 @@ lazy val parent = project.in(file(".")).
   settings(projectSettings: _*).
   settings(
     name := "scalajs-benchmarks",
-    publishArtifact in Compile := false,
-    clean := clean.dependsOn(allProjects.map(clean in _): _*).value,
-    compile in Compile := (compile in Compile)
-        .dependsOn(allProjects.map(compile in _ in Compile): _*).value
+    Compile / publishArtifact := false,
+    clean := clean.dependsOn(allProjects.map(_ / clean): _*).value,
+    Compile / compile := (Compile / compile)
+        .dependsOn(allProjects.map(_ / Compile / compile): _*).value
   )
 
 lazy val allProjects = Seq(
@@ -197,13 +209,13 @@ def autoConfigJSRef(p: Project, jsFile: String, benchmarkFunName: String): Proje
         scalaJSUseMainModuleInitializer := true,
         mainClass := Some(name.value),
         jsEnvInput := {
-          val dir = (baseDirectory in parent).value / "common/reference"
+          val dir = (parent / baseDirectory).value / "common/reference"
           val files = List(dir / "bench.js", dir / jsFile)
           files.map(f => Input.Script(f.toPath))
         },
 
         createHTMLRunner := {
-          val dir = (baseDirectory in parent).value / "common/reference"
+          val dir = (parent / baseDirectory).value / "common/reference"
           val jsFileURI1 = (dir / "bench.js").toURI.toASCIIString
           val jsFileURI2 = (dir / jsFile).toURI.toASCIIString
 
@@ -237,7 +249,7 @@ def autoConfigJSRef(p: Project, jsFile: String, benchmarkFunName: String): Proje
 
 lazy val arrayBuilderMicro = autoConfig(crossProject(JSPlatform, JVMPlatform))
   .settings(
-    mainClass in Compile := Some("org.scalajs.benchmark.arraybuildermicro.ArrayBuilderMicroAll")
+    Compile / mainClass := Some("org.scalajs.benchmark.arraybuildermicro.ArrayBuilderMicroAll")
   )
 lazy val arrayBuilderMicroJVM = arrayBuilderMicro.jvm
 lazy val arrayBuilderMicroJS = arrayBuilderMicro.js
@@ -272,14 +284,14 @@ lazy val sha512IntJS = sha512Int.js
 
 lazy val longMicro = autoConfig(crossProject(JSPlatform, JVMPlatform))
   .settings(
-    mainClass in Compile := Some("org.scalajs.benchmark.longmicro.LongMicroAll")
+    Compile / mainClass := Some("org.scalajs.benchmark.longmicro.LongMicroAll")
   )
 lazy val longMicroJVM = longMicro.jvm
 lazy val longMicroJS = longMicro.js
 
 lazy val intMicro = autoConfig(crossProject(JSPlatform, JVMPlatform))
   .settings(
-    mainClass in Compile := Some("org.scalajs.benchmark.intmicro.IntMicroAll")
+    Compile / mainClass := Some("org.scalajs.benchmark.intmicro.IntMicroAll")
   )
 lazy val intMicroJVM = intMicro.jvm
 lazy val intMicroJS = intMicro.js
