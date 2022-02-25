@@ -169,7 +169,8 @@ lazy val allProjects = Seq(
     jsonJVM, jsonJS,
     listJVM, listJS,
     nbodyJVM, nbodyJS,
-    queensJVM, queensJS
+    queensJVM, queensJS,
+    mathMicroJVM, mathMicroJS,
 )
 
 lazy val common = crossProject(JSPlatform, JVMPlatform).
@@ -344,3 +345,10 @@ lazy val nbodyJS = nbody.js
 lazy val queens = autoConfig(crossProject(JSPlatform, JVMPlatform))
 lazy val queensJVM = queens.jvm
 lazy val queensJS = queens.js
+
+lazy val mathMicro = autoConfig(crossProject(JSPlatform, JVMPlatform))
+  .settings(
+    Compile / mainClass := Some("org.scalajs.benchmark.mathmicro.MathMicroAll")
+  )
+lazy val mathMicroJVM = mathMicro.jvm
+lazy val mathMicroJS = mathMicro.js
