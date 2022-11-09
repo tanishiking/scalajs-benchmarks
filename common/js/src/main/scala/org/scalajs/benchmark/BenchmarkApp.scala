@@ -31,7 +31,7 @@ trait BenchmarkApp {
 
   def onClick(): Unit
 
-  def init() {
+  def init(): Unit = {
     val button = $("run")
 
     if (button != null) {
@@ -39,7 +39,7 @@ trait BenchmarkApp {
     }
   }
 
-  def time(run: => Unit) {
+  def time(run: => Unit): Unit = {
     val before = new js.Date()
     run
     val after = new js.Date()

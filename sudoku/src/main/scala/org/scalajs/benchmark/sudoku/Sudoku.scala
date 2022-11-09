@@ -16,7 +16,7 @@ object Sudoku extends org.scalajs.benchmark.Benchmark {
 
   override def prefix = "Sudoku"
 
-  def run {
+  def run(): Unit = {
     solve(grid1) match {
       case Some(values) =>
         if (!grid1Solutions.contains(asString(values)))
@@ -53,7 +53,7 @@ object Sudoku extends org.scalajs.benchmark.Benchmark {
 
     val iter = gridValues(grid).iterator
     while (iter.hasNext) {
-      val (s, d) = iter.next
+      val (s, d) = iter.next()
       if (digits.contains(d) && !assign(values, s, d))
         return False
     }
@@ -99,7 +99,7 @@ object Sudoku extends org.scalajs.benchmark.Benchmark {
     // (2) If a unit u is reduced to only one place for a value d, then put it there.
     val iter = units(s).iterator
     while (iter.hasNext) {
-      val u = iter.next
+      val u = iter.next()
       val dplaces = for (s <- u; if (values(s).contains(d))) yield s
       if (dplaces.isEmpty)
         return False // Contradiction: no place for d
@@ -125,7 +125,7 @@ object Sudoku extends org.scalajs.benchmark.Benchmark {
     "874196325359742618261538497145679832783254169926813754417325986598461273632987541",
     "834596217659712438271438569745169382923854671186273954417325896562987143398641725")
 
-  def test() {
+  def test(): Unit = {
     require(squares.length == 81)
     require(unitlist.length == 27)
     require(squares.forall(s => units(s).size == 3))
@@ -142,7 +142,7 @@ object Sudoku extends org.scalajs.benchmark.Benchmark {
   // ################ Display as 2-D grid ################
 
   // Display these values as a 2-D grid.
-  def display(values: Grid) = {
+  def display(values: Grid): Unit = {
     val width = squares.map(values(_).length).max + 1
     val line = (for (i <- 0 to 2) yield ("-" * width * 3)).mkString("+")
     for (r <- rows.map(_.toString)) {
@@ -151,7 +151,7 @@ object Sudoku extends org.scalajs.benchmark.Benchmark {
       if ("CF".contains(r))
         println(line)
     }
-    println
+    println()
   }
 
   def asString(values: Grid): String =
@@ -172,7 +172,7 @@ object Sudoku extends org.scalajs.benchmark.Benchmark {
     // Chose the unfilled square s with the fewest possibilities
     val (s, n) = values.filter(_._2.length > 1).minBy(_._2.length)
 
-    values(s).toStream.map { d =>
+    values(s).iterator.map { d =>
       val solution = values.clone
       if (assign(solution, s, d.toString))
         search(solution)

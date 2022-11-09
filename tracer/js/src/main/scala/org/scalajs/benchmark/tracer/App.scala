@@ -13,7 +13,7 @@ import scala.scalajs.js
 
 trait App extends org.scalajs.benchmark.BenchmarkApp {
 
-  def onClick() {
+  def onClick(): Unit = {
     val config = new EngineConfiguration(
       imageWidth = int("imageWidth"),
       imageHeight = int("imageHeight"),

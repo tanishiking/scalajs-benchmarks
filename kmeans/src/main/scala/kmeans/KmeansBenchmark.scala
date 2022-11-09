@@ -16,28 +16,26 @@ class Point(val x: Double, val y: Double, val z: Double) {
 object KmeansBenchmark extends communitybench.Benchmark {
   def inputOutput: (String, String) = ("100000", "true")
 
-  def generatePoints(k: Int, num: Int): Seq[Point] = {
+  def generatePoints(k: Int, num: Int): scala.collection.Seq[Point] = {
     val randx = new Random(1)
     val randy = new Random(3)
     val randz = new Random(5)
-    (0 until num)
+    val points = (0 until num)
       .map({ i =>
         val x = ((i + 1) % k) * 1.0 / k + randx.nextDouble() * 0.5
         val y = ((i + 5) % k) * 1.0 / k + randy.nextDouble() * 0.5
         val z = ((i + 7) % k) * 1.0 / k + randz.nextDouble() * 0.5
         new Point(x, y, z)
       })
-      .to[mutable.ArrayBuffer]
+    mutable.ArrayBuffer(points: _*)
   }
 
   def initializeMeans(k: Int, points: Seq[Point]): Seq[Point] = {
     val rand = new Random(7)
-    (0 until k)
-      .map(_ => points(rand.nextInt(points.length)))
-      .to[mutable.ArrayBuffer]
+    mutable.ArrayBuffer((0 until k).map(_ => points(rand.nextInt(points.length))): _*)
   }
 
-  def findClosest(p: Point, means: GenSeq[Point]): Point = {
+  def findClosest(p: Point, means: scala.collection.Seq[Point]): Point = {
     scala.Predef.assert(means.size > 0)
     var minDistance = p.squareDistance(means(0))
     var closest     = means(0)
@@ -52,22 +50,22 @@ object KmeansBenchmark extends communitybench.Benchmark {
   }
 
   def classify(
-      points: GenSeq[Point],
-      means: GenSeq[Point]
-  ): GenMap[Point, GenSeq[Point]] = {
+      points: scala.collection.Seq[Point],
+      means: scala.collection.Seq[Point]
+  ): scala.collection.Map[Point, scala.collection.Seq[Point]] = {
     val grouped = points.groupBy(p => findClosest(p, means))
     means.foldLeft(grouped) { (map, mean) =>
       if (map.contains(mean)) map else map.updated(mean, Seq())
     }
   }
 
-  def findAverage(oldMean: Point, points: GenSeq[Point]): Point =
+  def findAverage(oldMean: Point, points: scala.collection.Seq[Point]): Point =
     if (points.length == 0) oldMean
     else {
       var x = 0.0
       var y = 0.0
       var z = 0.0
-      points.seq.foreach { p =>
+      points.foreach { p =>
         x += p.x
         y += p.y
         z += p.z
@@ -76,15 +74,15 @@ object KmeansBenchmark extends communitybench.Benchmark {
     }
 
   def update(
-      classified: GenMap[Point, GenSeq[Point]],
-      oldMeans: GenSeq[Point]
-  ): GenSeq[Point] = {
+      classified: scala.collection.Map[Point, scala.collection.Seq[Point]],
+      oldMeans: scala.collection.Seq[Point]
+  ): scala.collection.Seq[Point] = {
     oldMeans.map(mean => findAverage(mean, classified(mean)))
   }
 
   def converged(eta: Double)(
-      oldMeans: GenSeq[Point],
-      newMeans: GenSeq[Point]
+      oldMeans: scala.collection.Seq[Point],
+      newMeans: scala.collection.Seq[Point]
   ): Boolean = {
     (oldMeans zip newMeans)
       .map({
@@ -95,10 +93,10 @@ object KmeansBenchmark extends communitybench.Benchmark {
   }
 
   final def kMeans(
-      points: GenSeq[Point],
-      means: GenSeq[Point],
+      points: scala.collection.Seq[Point],
+      means: scala.collection.Seq[Point],
       eta: Double
-  ): GenSeq[Point] = {
+  ): scala.collection.Seq[Point] = {
     val classifiedPoints = classify(points, means)
 
     val newMeans = update(classifiedPoints, means)
@@ -111,14 +109,14 @@ object KmeansBenchmark extends communitybench.Benchmark {
   }
 
   def run(input: String): Boolean = {
-    val numPoints              = input.toInt
-    val eta                    = 0.01
-    val k                      = 32
-    val points                 = generatePoints(k, numPoints)
-    val means                  = initializeMeans(k, points)
-    var centers: GenSeq[Point] = null
-    val result                 = kMeans(points, means, eta)
-    var sum                    = 0D
+    val numPoints = input.toInt
+    val eta = 0.01
+    val k = 32
+    val points = generatePoints(k, numPoints)
+    val means = initializeMeans(k, points)
+    var centers: scala.collection.Seq[Point] = null
+    val result = kMeans(points, means, eta)
+    var sum = 0d
     result.foreach { p =>
       sum += p.x
       sum += p.y

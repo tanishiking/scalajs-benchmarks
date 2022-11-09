@@ -32,7 +32,7 @@ object Tracer extends org.scalajs.benchmark.Benchmark with App {
 
   override def prefix = "Tracer"
 
-  def run {
+  def run(): Unit = {
     new RenderScene().renderScene(config, null)
   }
 
