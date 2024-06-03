@@ -1,3 +1,5 @@
+import org.scalajs.jsenv.nodejs.NodeJSEnv
+import org.scalajs.linker.interface.OutputPatterns
 import org.scalajs.linker.interface.CheckedBehavior.Unchecked
 import org.scalajs.linker.interface.ESVersion
 import sbtcrossproject.CrossProject
@@ -14,6 +16,17 @@ val projectSettings: Seq[Setting[_]] = Seq(
 
 scalaJSLinkerConfig in Global :=
   org.scalajs.linker.interface.StandardConfig()
+
+ThisBuild / scalaJSLinkerConfig ~= { prev =>
+  prev
+    .withSemantics(_.optimized)
+    .withModuleKind(ModuleKind.ESModule)
+    .withOutputPatterns(OutputPatterns.fromJSFile("%s.mjs"))
+}
+
+ThisBuild / jsEnv := {
+  new NodeJSEnv(NodeJSEnv.Config().withArgs(List("--experimental-wasm-exnref", "--turboshaft-wasm")))
+}
 
 val defaultSettings: Seq[Setting[_]] = projectSettings ++ Seq(
   scalaVersion := "2.13.13",
@@ -68,7 +81,7 @@ val defaultJSSettings: Seq[Setting[_]] = Def.settings(
       val linkerConfig = scalaJSLinkerConfig.value
 
       val info = envInfo(
-          compiler = "Scala.js",
+          compiler = if (linkerConfig.experimentalUseWebAssembly) "Scala/Wasm" else "Scala.js",
           esVersion = esVersionToString(linkerConfig.esFeatures.esVersion),
           moduleKind = linkerConfig.moduleKind match {
             case ModuleKind.NoModule       => "script"
@@ -93,9 +106,9 @@ val defaultJSSettings: Seq[Setting[_]] = Def.settings(
     },
 
     createHTMLRunner := {
-      val jsFile = fastOptJS.value.data
-      val jsFileName = jsFile.getName
-      val htmlFile = jsFile.getParentFile / (jsFileName.stripSuffix(".js") + ".html")
+      val outputDir = fastLinkJSOutput.value
+      val dirName = outputDir.getName
+      val htmlFile = outputDir.getParentFile / "index.html"
       val title = name.value
       val mainClassName = mainClass.value.getOrElse {
         throw new Exception("Oops, no main class")
@@ -122,9 +135,9 @@ val defaultJSSettings: Seq[Setting[_]] = Def.settings(
         |    <script type="text/javascript">
         |      ${setupPrefixPropertyCode.value}
         |    </script>
-        |    ${if (!isModule) s"<script type='$scriptType' src='./$jsFileName'></script>" else ""}
+        |    ${if (!isModule) s"<script type='$scriptType' src='./$dirName/main.mjs'></script>" else ""}
         |    <script type="$scriptType">
-        |      ${if (isModule) s"import { setupHTMLBenchmark } from './$jsFileName';" else ""}
+        |      ${if (isModule) s"import { setupHTMLBenchmark } from './$dirName/main.mjs';" else ""}
         |      setupHTMLBenchmark("$mainClassName");
         |    </script>
         |  </body>
@@ -206,6 +219,8 @@ def autoConfigJSRef(p: Project, jsFile: String, benchmarkFunName: String): Proje
     .settings(projectSettings: _*)
     .settings(
       name := theName,
+
+      scalaVersion := "2.12.19",
 
       inConfig(Compile)(Def.settings(
         scalaJSUseMainModuleInitializer := true,
