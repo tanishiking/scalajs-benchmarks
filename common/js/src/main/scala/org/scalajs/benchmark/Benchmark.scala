@@ -123,11 +123,14 @@ abstract class Benchmark {
   /** Run the benchmark the specified number of milliseconds and return
    *  the mean execution time and SEM in microseconds.
    */
-  def runBenchmark(timeMinimum: Long, runsMinimum: Int): (Double, Double) = {
-    if (scala.scalajs.runtime.linkingInfo.isWebAssembly)
-      runBenchmarkWasm(timeMinimum, runsMinimum)
-    else
-      runBenchmarkJS(timeMinimum, runsMinimum)
+  def runBenchmark(timeMinimum: Long, runsMinimum: Int): (Double, Double, String) = {
+    if (scala.scalajs.runtime.linkingInfo.isWebAssembly) {
+      val res = runBenchmarkWasm(timeMinimum, runsMinimum)
+      (res._1, res._2, "wasm")
+    } else {
+      val res = runBenchmarkJS(timeMinimum, runsMinimum)
+      (res._1, res._2, "js")
+    }
   }
 
   /** Run the benchmark the specified number of milliseconds and return
@@ -215,10 +218,10 @@ abstract class Benchmark {
 
     setUp()
     warmUp()
-    val (mean, sem) = runBenchmark(3000, 20)
+    val (mean, sem, env) = runBenchmark(3000, 20)
     tearDown()
 
     val envInfo = g.ScalaJSBenchEnvInfo.asInstanceOf[String]
-    s"$prefix;$envInfo;${Benchmark.userAgent};$mean;$sem"
+    s"$env$prefix;$envInfo;${Benchmark.userAgent};$mean;$sem"
   }
 }

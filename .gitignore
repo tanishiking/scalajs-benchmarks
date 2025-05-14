@@ -4,3 +4,11 @@ target/
 .project
 .settings/
 .idea/
+
+/.bsp/
+/.bloop/
+/.metals/
+/project/**/metals.sbt
+/.vscode/
+/.jvmopts
+/.sbtopts
