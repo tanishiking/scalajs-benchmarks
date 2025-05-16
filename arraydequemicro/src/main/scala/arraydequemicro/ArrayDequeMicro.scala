@@ -109,18 +109,17 @@ object ArrayDequePeekFirstRepeatedlyFromFull extends ArrayDequeMicro {
 
   def run(): Unit = {
     val deque = new ArrayDeque[Int]()
-    if (DefaultSize > 0) {
-      for (element <- elementsToAdd) {
-        deque.addLast(element)
-      }
+
+    val size = 16 // the maximum size that doesn't cause resizing
+    val elementsToAdd: Array[Int] = (0 until size).toArray
+    for (element <- elementsToAdd) {
+      deque.addLast(element)
     }
 
     var consumedPeek = 0
     for (_ <- 0 until DefaultSize) {
-      if (!deque.isEmpty()) {
-        val peeked: Int = deque.peekFirst()
-        consumedPeek ^= peeked.hashCode()
-      }
+      val peeked: Int = deque.peekFirst()
+      consumedPeek += peeked
     }
   }
 }
@@ -131,6 +130,8 @@ object ArrayDequePeekLastRepeatedlyFromFull extends ArrayDequeMicro {
 
   def run(): Unit = {
     val deque = new ArrayDeque[Int]()
+    val size = 16 // the maximum size that doesn't cause resizing
+    val elementsToAdd: Array[Int] = (0 until size).toArray
     if (DefaultSize > 0) {
       for (element <- elementsToAdd) {
         deque.addLast(element)
@@ -139,10 +140,8 @@ object ArrayDequePeekLastRepeatedlyFromFull extends ArrayDequeMicro {
 
     var consumedPeek = 0
     for (_ <- 0 until DefaultSize) {
-      if (!deque.isEmpty()) {
-        val peeked: Int = deque.peekLast()
-        consumedPeek ^= peeked.hashCode()
-      }
+      val peeked: Int = deque.peekLast()
+      consumedPeek += peeked
     }
   }
 }
