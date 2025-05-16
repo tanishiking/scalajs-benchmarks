@@ -23,6 +23,8 @@ abstract class Material(val reflection: Double, val transparency: Double, val gl
   // var refraction = 0.50;
   def hasTexture = false
   def getColor(u: Double, v: Double): Color
+
+  val shininess = math.pow(10, gloss + 1)
 }
 
 class Chessboard(colorEven: Color, colorOdd: Color,

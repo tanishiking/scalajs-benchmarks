@@ -1,6 +1,9 @@
+import org.scalajs.jsenv.nodejs.NodeJSEnv
+import org.scalajs.linker.interface.OutputPatterns
 import org.scalajs.linker.interface.CheckedBehavior.Unchecked
 import org.scalajs.linker.interface.ESVersion
 import sbtcrossproject.CrossProject
+import scala.sys.process._
 
 import org.scalajs.jsenv.Input
 
@@ -14,6 +17,19 @@ val projectSettings: Seq[Setting[_]] = Seq(
 
 scalaJSLinkerConfig in Global :=
   org.scalajs.linker.interface.StandardConfig()
+
+ThisBuild / scalaJSLinkerConfig ~= { prev =>
+  prev
+    .withSemantics(_.optimized)
+    .withModuleKind(ModuleKind.ESModule)
+    .withOutputPatterns(OutputPatterns.fromJSFile("%s.mjs"))
+    .withExperimentalUseWebAssembly(true)
+    .withOptimizer(true)
+}
+
+ThisBuild / jsEnv := {
+  new NodeJSEnv(NodeJSEnv.Config().withArgs(List("--experimental-wasm-exnref", "--turboshaft-wasm", "--experimental-wasm-imported-strings")))
+}
 
 val defaultSettings: Seq[Setting[_]] = projectSettings ++ Seq(
   scalaVersion := "2.13.13",
@@ -68,7 +84,7 @@ val defaultJSSettings: Seq[Setting[_]] = Def.settings(
       val linkerConfig = scalaJSLinkerConfig.value
 
       val info = envInfo(
-          compiler = "Scala.js",
+          compiler = if (linkerConfig.experimentalUseWebAssembly) "Scala/Wasm" else "Scala.js",
           esVersion = esVersionToString(linkerConfig.esFeatures.esVersion),
           moduleKind = linkerConfig.moduleKind match {
             case ModuleKind.NoModule       => "script"
@@ -93,9 +109,9 @@ val defaultJSSettings: Seq[Setting[_]] = Def.settings(
     },
 
     createHTMLRunner := {
-      val jsFile = fastOptJS.value.data
-      val jsFileName = jsFile.getName
-      val htmlFile = jsFile.getParentFile / (jsFileName.stripSuffix(".js") + ".html")
+      val outputDir = fastLinkJSOutput.value
+      val dirName = outputDir.getName
+      val htmlFile = outputDir.getParentFile / "index.html"
       val title = name.value
       val mainClassName = mainClass.value.getOrElse {
         throw new Exception("Oops, no main class")
@@ -122,9 +138,9 @@ val defaultJSSettings: Seq[Setting[_]] = Def.settings(
         |    <script type="text/javascript">
         |      ${setupPrefixPropertyCode.value}
         |    </script>
-        |    ${if (!isModule) s"<script type='$scriptType' src='./$jsFileName'></script>" else ""}
+        |    ${if (!isModule) s"<script type='$scriptType' src='./$dirName/main.mjs'></script>" else ""}
         |    <script type="$scriptType">
-        |      ${if (isModule) s"import { setupHTMLBenchmark } from './$jsFileName';" else ""}
+        |      ${if (isModule) s"import { setupHTMLBenchmark } from './$dirName/main.mjs';" else ""}
         |      setupHTMLBenchmark("$mainClassName");
         |    </script>
         |  </body>
@@ -133,8 +149,8 @@ val defaultJSSettings: Seq[Setting[_]] = Def.settings(
       IO.write(htmlFile, content)
       streams.value.log.info(htmlFile.toURI.toASCIIString)
       htmlFile
-    }
-  ))
+    },
+  )),
 )
 
 lazy val parent = project.in(file(".")).
@@ -171,6 +187,7 @@ lazy val allProjects = Seq(
     nbodyJVM, nbodyJS,
     queensJVM, queensJS,
     mathMicroJVM, mathMicroJS,
+    arrayDequeMicroJVM, arrayDequeMicroJS,
 )
 
 lazy val common = crossProject(JSPlatform, JVMPlatform).
@@ -206,6 +223,8 @@ def autoConfigJSRef(p: Project, jsFile: String, benchmarkFunName: String): Proje
     .settings(projectSettings: _*)
     .settings(
       name := theName,
+
+      scalaVersion := "2.12.19",
 
       inConfig(Compile)(Def.settings(
         scalaJSUseMainModuleInitializer := true,
@@ -301,6 +320,13 @@ lazy val intMicro = autoConfig(crossProject(JSPlatform, JVMPlatform))
   )
 lazy val intMicroJVM = intMicro.jvm
 lazy val intMicroJS = intMicro.js
+
+lazy val arrayDequeMicro = autoConfig(crossProject(JSPlatform, JVMPlatform))
+  .settings(
+    Compile / mainClass := Some("org.scalajs.benchmark.arraydequemicro.ArrayDequeMicroAll")
+  )
+lazy val arrayDequeMicroJVM = arrayDequeMicro.jvm
+lazy val arrayDequeMicroJS = arrayDequeMicro.js
 
 lazy val kmeans = autoConfig(crossProject(JSPlatform, JVMPlatform))
 lazy val kmeansJVM = kmeans.jvm
