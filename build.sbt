@@ -22,6 +22,8 @@ ThisBuild / scalaJSLinkerConfig ~= { prev =>
     .withSemantics(_.optimized)
     .withModuleKind(ModuleKind.ESModule)
     .withOutputPatterns(OutputPatterns.fromJSFile("%s.mjs"))
+    .withExperimentalUseWebAssembly(false)
+    .withOptimizer(true)
 }
 
 ThisBuild / jsEnv := {
@@ -184,6 +186,7 @@ lazy val allProjects = Seq(
     nbodyJVM, nbodyJS,
     queensJVM, queensJS,
     mathMicroJVM, mathMicroJS,
+    varargsMicroJVM, varargsMicroJS
 )
 
 lazy val common = crossProject(JSPlatform, JVMPlatform).
@@ -316,6 +319,13 @@ lazy val intMicro = autoConfig(crossProject(JSPlatform, JVMPlatform))
   )
 lazy val intMicroJVM = intMicro.jvm
 lazy val intMicroJS = intMicro.js
+
+lazy val varargsMicro = autoConfig(crossProject(JSPlatform, JVMPlatform))
+  .settings(
+    Compile / mainClass := Some("org.scalajs.benchmark.varargsmicro.VarargsMicroAll")
+  )
+lazy val varargsMicroJVM = varargsMicro.jvm
+lazy val varargsMicroJS = varargsMicro.js
 
 lazy val kmeans = autoConfig(crossProject(JSPlatform, JVMPlatform))
 lazy val kmeansJVM = kmeans.jvm
