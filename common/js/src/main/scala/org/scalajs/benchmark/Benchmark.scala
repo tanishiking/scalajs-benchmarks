@@ -124,6 +124,16 @@ abstract class Benchmark {
    *  the mean execution time and SEM in microseconds.
    */
   def runBenchmark(timeMinimum: Long, runsMinimum: Int): (Double, Double) = {
+    if (scala.scalajs.runtime.linkingInfo.isWebAssembly)
+      runBenchmarkWasm(timeMinimum, runsMinimum)
+    else
+      runBenchmarkJS(timeMinimum, runsMinimum)
+  }
+
+  /** Run the benchmark the specified number of milliseconds and return
+   *  the mean execution time and SEM in microseconds.
+   */
+  private def runBenchmarkJS(timeMinimum: Long, runsMinimum: Int): (Double, Double) = {
     var runs = 0
     var enoughTime = false
     val stopTime = performanceTime() + timeMinimum
@@ -135,6 +145,28 @@ abstract class Benchmark {
       run()
       val endTime = performanceTime()
       samples += (endTime - startTime) * 1000.0
+      runs += 1
+      enoughTime = endTime >= stopTime
+    } while (!enoughTime || runs < runsMinimum)
+
+    meanAndSEM(samples.result())
+  }
+
+  /** Run the benchmark the specified number of milliseconds and return
+   *  the mean execution time and SEM in microseconds.
+   */
+  private def runBenchmarkWasm(timeMinimum: Long, runsMinimum: Int): (Double, Double) = {
+    var runs = 0
+    var enoughTime = false
+    val stopTime = System.nanoTime() + (timeMinimum * 1000000L)
+
+    val samples = Array.newBuilder[Double]
+
+    do {
+      val startTime = System.nanoTime()
+      run()
+      val endTime = System.nanoTime()
+      samples += (endTime - startTime) / 1000.0
       runs += 1
       enoughTime = endTime >= stopTime
     } while (!enoughTime || runs < runsMinimum)

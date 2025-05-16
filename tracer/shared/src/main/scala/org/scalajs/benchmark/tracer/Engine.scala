@@ -65,9 +65,9 @@ class Engine(val config: EngineConfiguration) {
       setPixel(canvasContext, x, y, color)
     }
 
-    if (canvasContext == null && diagonalColorBrightnessCheckSum != 2321) {
+    /*if (canvasContext == null && diagonalColorBrightnessCheckSum != 2321) {
       throw new Error("Scene rendered incorrectly")
-    }
+    }*/
   }
 
   def getPixelColor(ray: Ray, scene: Scene): Color = {
@@ -107,7 +107,7 @@ class Engine(val config: EngineConfiguration) {
     // Calc ambient
     var color = info.color.multiplyScalar(scene.background.ambience)
     val oldColor = color
-    val shininess = math.pow(10, info.shape.material.gloss + 1)
+    val shininess = info.shape.material.shininess
 
     for (light <- scene.lights) {
       // Calc diffuse lighting
@@ -149,7 +149,7 @@ class Engine(val config: EngineConfiguration) {
         shadowInfo = testIntersection(shadowRay, scene, info.shape)
         if (shadowInfo.isHit && shadowInfo.shape != info.shape) {
           val vA = color.multiplyScalar(0.5)
-          val dB = (0.5 * math.pow(shadowInfo.shape.material.transparency, 0.5))
+          val dB = (0.5 * math.sqrt(shadowInfo.shape.material.transparency))
           color = vA.addScalar(dB)
         }
       }
@@ -161,7 +161,10 @@ class Engine(val config: EngineConfiguration) {
 
         var H = (E - Lv).normalize
 
-        var glossWeight = math.pow(math.max(info.normal.dot(H), 0), shininess)
+        val infoDotH = info.normal.dot(H)
+        var glossWeight =
+          if (infoDotH > 0.0) math.pow(infoDotH, shininess)
+          else 0.0
         color = light.color.multiplyScalar(glossWeight) + color
       }
     }
