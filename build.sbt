@@ -170,6 +170,7 @@ lazy val allProjects = Seq(
     listJVM, listJS,
     nbodyJVM, nbodyJS,
     queensJVM, queensJS,
+    bignumsJVM, bignumsJS,
     mathMicroJVM, mathMicroJS,
 )
 
@@ -345,6 +346,10 @@ lazy val nbodyJS = nbody.js
 lazy val queens = autoConfig(crossProject(JSPlatform, JVMPlatform))
 lazy val queensJVM = queens.jvm
 lazy val queensJS = queens.js
+
+lazy val bignums = autoConfig(crossProject(JSPlatform, JVMPlatform))
+lazy val bignumsJVM = queens.jvm
+lazy val bignumsJS = queens.js
 
 lazy val mathMicro = autoConfig(crossProject(JSPlatform, JVMPlatform))
   .settings(
