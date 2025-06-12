@@ -328,6 +328,13 @@ lazy val arrayDequeMicro = autoConfig(crossProject(JSPlatform, JVMPlatform))
 lazy val arrayDequeMicroJVM = arrayDequeMicro.jvm
 lazy val arrayDequeMicroJS = arrayDequeMicro.js
 
+lazy val priorityQueueMicro = autoConfig(crossProject(JSPlatform, JVMPlatform))
+  .settings(
+    Compile / mainClass := Some("org.scalajs.benchmark.priorityqueuemicro.PriorityQueueMicroAll")
+  )
+lazy val priorityQueueMicroJVM = priorityQueueMicro.jvm
+lazy val priorityQueueMicroJS = priorityQueueMicro.js
+
 lazy val kmeans = autoConfig(crossProject(JSPlatform, JVMPlatform))
 lazy val kmeansJVM = kmeans.jvm
 lazy val kmeansJS = kmeans.js
