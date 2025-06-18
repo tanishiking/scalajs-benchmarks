@@ -1,9 +1,13 @@
-import org.scalajs.linker.interface.CheckedBehavior.Unchecked
-import org.scalajs.linker.interface.ESVersion
 import sbtcrossproject.CrossProject
 
-import org.scalajs.jsenv.Input
+import org.scalajs.linker.interface.OutputPatterns
+import org.scalajs.linker.interface.CheckedBehavior.Unchecked
+import org.scalajs.linker.interface.{ESVersion, OutputPatterns}
 
+import org.scalajs.jsenv.Input
+import org.scalajs.jsenv.nodejs.NodeJSEnv
+
+val enableWasmEverywhere = settingKey[Boolean]("Enable Wasm everywhere")
 val setupPrefixPropertyCode = taskKey[String]("JS code to setup the prefix property")
 val createHTMLRunner = taskKey[File]("Create the HTML runner for this benchmark")
 
@@ -12,8 +16,34 @@ val projectSettings: Seq[Setting[_]] = Seq(
   version := "0.1-SNAPSHOT"
 )
 
-scalaJSLinkerConfig in Global :=
-  org.scalajs.linker.interface.StandardConfig()
+Global / enableWasmEverywhere := false
+
+ThisBuild / scalaJSLinkerConfig := {
+  val prev = (ThisBuild / scalaJSLinkerConfig).value
+  if ((ThisBuild / enableWasmEverywhere).value) {
+    prev
+      .withModuleKind(ModuleKind.ESModule)
+      .withOutputPatterns(OutputPatterns.fromJSFile("%s.mjs"))
+      .withExperimentalUseWebAssembly(true)
+      .withPrettyPrint(true)
+  } else {
+    prev
+  }
+}
+
+ThisBuild / jsEnv := {
+  val default = (ThisBuild / jsEnv).value
+
+  if ((ThisBuild / enableWasmEverywhere).value) {
+    new NodeJSEnv(NodeJSEnv.Config().withArgs(List(
+      "--experimental-wasm-exnref",
+      "--experimental-wasm-imported-strings",
+      "--turboshaft-wasm"
+    )))
+  } else {
+    default
+  }
+}
 
 val defaultSettings: Seq[Setting[_]] = projectSettings ++ Seq(
   scalaVersion := "2.13.16",
@@ -68,7 +98,7 @@ val defaultJSSettings: Seq[Setting[_]] = Def.settings(
       val linkerConfig = scalaJSLinkerConfig.value
 
       val info = envInfo(
-          compiler = "Scala.js",
+          compiler = if (linkerConfig.experimentalUseWebAssembly) "Scala/Wasm" else "Scala.js",
           esVersion = esVersionToString(linkerConfig.esFeatures.esVersion),
           moduleKind = linkerConfig.moduleKind match {
             case ModuleKind.NoModule       => "script"
@@ -93,15 +123,17 @@ val defaultJSSettings: Seq[Setting[_]] = Def.settings(
     },
 
     createHTMLRunner := {
-      val jsFile = fastOptJS.value.data
-      val jsFileName = jsFile.getName
-      val htmlFile = jsFile.getParentFile / (jsFileName.stripSuffix(".js") + ".html")
+      val linkerConfig = scalaJSLinkerConfig.value
+
+      val outputDir = fastLinkJSOutput.value
+      val dirName = outputDir.getName
+      val htmlFile = outputDir.getParentFile / "index.html"
       val title = name.value
       val mainClassName = mainClass.value.getOrElse {
         throw new Exception("Oops, no main class")
       }
 
-      val isModule = scalaJSLinkerConfig.value.moduleKind match {
+      val isModule = linkerConfig.moduleKind match {
         case ModuleKind.NoModule => false
         case ModuleKind.ESModule => true
 
@@ -110,6 +142,7 @@ val defaultJSSettings: Seq[Setting[_]] = Def.settings(
       }
 
       val scriptType = if (isModule) "module" else "text/javascript"
+      val scriptSrc = if (isModule) s"./$dirName/main.mjs" else s"./$dirName/main.js"
 
       val content = s"""
         |<!DOCTYPE html>
@@ -122,9 +155,9 @@ val defaultJSSettings: Seq[Setting[_]] = Def.settings(
         |    <script type="text/javascript">
         |      ${setupPrefixPropertyCode.value}
         |    </script>
-        |    ${if (!isModule) s"<script type='$scriptType' src='./$jsFileName'></script>" else ""}
+        |    ${if (!isModule) s"<script type='$scriptType' src='$scriptSrc'></script>" else ""}
         |    <script type="$scriptType">
-        |      ${if (isModule) s"import { setupHTMLBenchmark } from './$jsFileName';" else ""}
+        |      ${if (isModule) s"import { setupHTMLBenchmark } from '$scriptSrc';" else ""}
         |      setupHTMLBenchmark("$mainClassName");
         |    </script>
         |  </body>
