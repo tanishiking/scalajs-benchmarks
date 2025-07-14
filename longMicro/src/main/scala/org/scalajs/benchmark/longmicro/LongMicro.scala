@@ -21,6 +21,7 @@ object LongMicroAll extends org.scalajs.benchmark.Benchmark {
       LongDiv64_Pow2,
       LongDiv64_64,
       LongDiv64_8,
+      LongConstantDivAddBaseline,
       LongSignedConstantDiv,
       LongSignedConstantRem,
       LongUnsignedConstantDiv,
@@ -43,6 +44,11 @@ object LongMicroAll extends org.scalajs.benchmark.Benchmark {
 }
 
 object LongMicroDataSets {
+
+  @FunctionalInterface
+  trait LongToLongFun {
+    def apply(x: Long): Long
+  }
 
   val random64s = Array[Long](
       0x416a5e6e5a17717dL,
@@ -559,7 +565,110 @@ object LongMicroDataSets {
       0x40L
   )
 
-  val randomSignedConstantDivs = Array[Long => Long](
+  val randomConstantAdds = Array[LongToLongFun](
+      num => num + -485L,
+      num => num + 2166835052L,
+      num => num + -1687483040L,
+      num => num + -31658700139179L,
+      num => num + -58620603170658703L,
+      num => num + -1351517365766642L,
+      num => num + 875131723604783L,
+      num => num + -22604737732440L,
+      num => num + 80213574L,
+      num => num + -1422L,
+      num => num + -463352117944L,
+      num => num + -6049851806321961L,
+      num => num + 177L,
+      num => num + -1181665004423L,
+      num => num + 1408992253L,
+      num => num + -9942609L,
+      num => num + 452805058512739L,
+      num => num + 108599520105964L,
+      num => num + 263775146743900L,
+      num => num + -5468409731L,
+      num => num + 1624065932039324L,
+      num => num + -54115797507550668L,
+      num => num + -865546668614390379L,
+      num => num + -8141907733624193992L,
+      num => num + -191533093819L,
+      num => num + 13619773621L,
+      num => num + -64255312753487343L,
+      num => num + 3888833442066489L,
+      num => num + -454223630L,
+      num => num + -33836237650L,
+      num => num + 14L,
+      num => num + 32990110406590995L,
+      num => num + -7993764562938L,
+      num => num + 12L,
+      num => num + 96586L,
+      num => num + 4866L,
+      num => num + -168251986L,
+      num => num + 283L,
+      num => num + -57959L,
+      num => num + -685L,
+      num => num + 1395671958798L,
+      num => num + 586L,
+      num => num + 460085361386743286L,
+      num => num + 590679177997L,
+      num => num + 45368L,
+      num => num + 5926892624L,
+      num => num + -3202578L,
+      num => num + 15586L,
+      num => num + 3157875L,
+      num => num + 202162L,
+      num => num + 20152199082L,
+      num => num + 26L,
+      num => num + 8547031721285087L,
+      num => num + -8449947368329348L,
+      num => num + -13789111214L,
+      num => num + -327511654373050705L,
+      num => num + 76190202L,
+      num => num + 51808560221178341L,
+      num => num + 97L,
+      num => num + 31590602465417L,
+      num => num + 50022213L,
+      num => num + -110729L,
+      num => num + 3547573086433L,
+      num => num + 352492217261L,
+      num => num + 6705362333532L,
+      num => num + 856496134L,
+      num => num + -24L,
+      num => num + -13576298589315962L,
+      num => num + 5189L,
+      num => num + -725417L,
+      num => num + 121337L,
+      num => num + 41L,
+      num => num + 386309L,
+      num => num + -32396600662L,
+      num => num + 12390770021L,
+      num => num + 852419794146L,
+      num => num + -232290L,
+      num => num + 4497892L,
+      num => num + 117L,
+      num => num + 3490L,
+      num => num + -175199L,
+      num => num + -71340589094L,
+      num => num + 1121L,
+      num => num + -1214748919336L,
+      num => num + 969L,
+      num => num + -374877774915427L,
+      num => num + 460997490L,
+      num => num + 281027466181289L,
+      num => num + 1920069772L,
+      num => num + 15501512651L,
+      num => num + -324636049354L,
+      num => num + 11L,
+      num => num + -270893481L,
+      num => num + -10514L,
+      num => num + 20455L,
+      num => num + 20743870L,
+      num => num + 2541L,
+      num => num + 230334975160259755L,
+      num => num + 154L,
+      num => num + 55169841693L,
+  )
+
+  val randomSignedConstantDivs = Array[LongToLongFun](
       num => num / -485L,
       num => num / 2166835052L,
       num => num / -1687483040L,
@@ -662,7 +771,7 @@ object LongMicroDataSets {
       num => num / 55169841693L,
   )
 
-  val randomSignedConstantRems = Array[Long => Long](
+  val randomSignedConstantRems = Array[LongToLongFun](
       num => num % -485L,
       num => num % 2166835052L,
       num => num % -1687483040L,
@@ -765,7 +874,7 @@ object LongMicroDataSets {
       num => num % 55169841693L,
   )
 
-  val randomUnsignedConstantDivs = Array[Long => Long](
+  val randomUnsignedConstantDivs = Array[LongToLongFun](
       num => java.lang.Long.divideUnsigned(num, 5L),
       num => java.lang.Long.divideUnsigned(num, 37489114602L),
       num => java.lang.Long.divideUnsigned(num, 2178767671L),
@@ -868,7 +977,7 @@ object LongMicroDataSets {
       num => java.lang.Long.divideUnsigned(num, 239019279220643L),
   )
 
-  val randomUnsignedConstantRems = Array[Long => Long](
+  val randomUnsignedConstantRems = Array[LongToLongFun](
       num => java.lang.Long.remainderUnsigned(num, 5L),
       num => java.lang.Long.remainderUnsigned(num, 37489114602L),
       num => java.lang.Long.remainderUnsigned(num, 2178767671L),
@@ -971,7 +1080,7 @@ object LongMicroDataSets {
       num => java.lang.Long.remainderUnsigned(num, 239019279220643L),
   )
 
-  val randomSignedConstantDivsPow2 = Array[Long => Long](
+  val randomSignedConstantDivsPow2 = Array[LongToLongFun](
       num => num / -1125899906842624L,
       num => num / 32L,
       num => num / 134217728L,
@@ -1109,7 +1218,7 @@ abstract class LongMicro extends org.scalajs.benchmark.Benchmark {
  * Long micro-benchmarks for divisions by constants.
  */
 abstract class LongConstantDivRemMicro extends org.scalajs.benchmark.Benchmark {
-  @inline def doRun(randomAs: Array[Long => Long], randomBs: Array[Long]): Long = {
+  @inline def doRun(randomAs: Array[LongToLongFun], randomBs: Array[Long]): Long = {
     val alen = randomAs.length
     val blen = randomBs.length
     var result = 0L
@@ -1127,7 +1236,7 @@ abstract class LongConstantDivRemMicro extends org.scalajs.benchmark.Benchmark {
     result
   }
 
-  @inline def doRunAndCheck(randomAs: Array[Long => Long], randomBs: Array[Long], expectedResult: Long): Unit = {
+  @inline def doRunAndCheck(randomAs: Array[LongToLongFun], randomBs: Array[Long], expectedResult: Long): Unit = {
     val actual = doRun(randomAs, randomBs)
     if (actual != expectedResult)
       throw new Exception(s"expected $expectedResult but got $actual")
@@ -1253,6 +1362,13 @@ object LongDiv64_8 extends LongMicro {
   }
 
   @inline def binaryOp(a: Long, b: Long): Long = a / b
+}
+
+object LongConstantDivAddBaseline extends LongConstantDivRemMicro {
+  override def prefix = "LongConstantDivAddBaseline"
+
+  @noinline def run(): Unit =
+    doRunAndCheck(randomConstantAdds, random64s, 2990845017735928704L)
 }
 
 object LongSignedConstantDiv extends LongConstantDivRemMicro {

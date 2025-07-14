@@ -23,6 +23,7 @@ object IntMicroAll extends org.scalajs.benchmark.Benchmark {
       IntMul,
       IntDiv32_32,
       IntDiv32_8,
+      IntConstantDivAddBaseline,
       IntSignedConstantDiv,
       IntSignedConstantRem,
       IntUnsignedConstantDiv,
@@ -43,6 +44,11 @@ object IntMicroAll extends org.scalajs.benchmark.Benchmark {
 }
 
 object IntMicroDataSets {
+
+  @FunctionalInterface
+  trait IntToIntFun {
+    def apply(x: Int): Int
+  }
 
   val random30s = Array[Int](
       0x1744213,
@@ -353,7 +359,110 @@ object IntMicroDataSets {
       0xfffffff6
   )
 
-  val randomSignedConstantDivs = Array[Int => Int](
+  val randomConstantAdds = Array[IntToIntFun](
+      num => num + 77424,
+      num => num + 12,
+      num => num + 242563119,
+      num => num + 3551082,
+      num => num + -73,
+      num => num + 1342515652,
+      num => num + -13376,
+      num => num + -57,
+      num => num + -1154,
+      num => num + -476,
+      num => num + -57725,
+      num => num + 404,
+      num => num + 69,
+      num => num + -704971,
+      num => num + -248640,
+      num => num + 3265120,
+      num => num + -3,
+      num => num + -5949,
+      num => num + 50055,
+      num => num + -168730,
+      num => num + 83644,
+      num => num + 22325,
+      num => num + -54,
+      num => num + -13974,
+      num => num + 10080,
+      num => num + 30479223,
+      num => num + 17705866,
+      num => num + -104082,
+      num => num + -26146,
+      num => num + 59738,
+      num => num + -36,
+      num => num + -76,
+      num => num + -217,
+      num => num + -226014,
+      num => num + 1862,
+      num => num + -10606,
+      num => num + 156884,
+      num => num + 18695,
+      num => num + 1173,
+      num => num + -20521,
+      num => num + 8779254,
+      num => num + -335663,
+      num => num + 1104314313,
+      num => num + 4154,
+      num => num + 39,
+      num => num + 43,
+      num => num + 7,
+      num => num + 5679407,
+      num => num + 1309682,
+      num => num + 27272,
+      num => num + 5,
+      num => num + -5852361,
+      num => num + -7703704,
+      num => num + -37,
+      num => num + 2552,
+      num => num + -1335,
+      num => num + -44336,
+      num => num + -817,
+      num => num + 4608,
+      num => num + 54124346,
+      num => num + 61,
+      num => num + -7842039,
+      num => num + -48,
+      num => num + -7,
+      num => num + -10,
+      num => num + 25762891,
+      num => num + -849,
+      num => num + 1707330,
+      num => num + 588015649,
+      num => num + -129701259,
+      num => num + 412372,
+      num => num + 3,
+      num => num + -2202971,
+      num => num + -11843,
+      num => num + -74323695,
+      num => num + -197375832,
+      num => num + -1710315,
+      num => num + 680740,
+      num => num + 7550,
+      num => num + -161,
+      num => num + -358022470,
+      num => num + 638993672,
+      num => num + 11598631,
+      num => num + -138882445,
+      num => num + -5,
+      num => num + -6,
+      num => num + -7804693,
+      num => num + 278312666,
+      num => num + 802,
+      num => num + 861572,
+      num => num + 24441,
+      num => num + 69366,
+      num => num + -182124649,
+      num => num + 21800959,
+      num => num + -3709073,
+      num => num + 37349214,
+      num => num + 133017,
+      num => num + -17843,
+      num => num + 465149985,
+      num => num + -457776,
+  )
+
+  val randomSignedConstantDivs = Array[IntToIntFun](
       num => num / 77424,
       num => num / 12,
       num => num / 242563119,
@@ -456,7 +565,7 @@ object IntMicroDataSets {
       num => num / -457776,
   )
 
-  val randomSignedConstantRems = Array[Int => Int](
+  val randomSignedConstantRems = Array[IntToIntFun](
       num => num % 77424,
       num => num % 12,
       num => num % 242563119,
@@ -559,7 +668,7 @@ object IntMicroDataSets {
       num => num % -457776,
   )
 
-  val randomUnsignedConstantDivs = Array[Int => Int](
+  val randomUnsignedConstantDivs = Array[IntToIntFun](
       num => Integer.divideUnsigned(num, 55593553),
       num => Integer.divideUnsigned(num, 3749),
       num => Integer.divideUnsigned(num, 17),
@@ -662,7 +771,7 @@ object IntMicroDataSets {
       num => Integer.divideUnsigned(num, 38),
   )
 
-  val randomUnsignedConstantRems = Array[Int => Int](
+  val randomUnsignedConstantRems = Array[IntToIntFun](
       num => Integer.remainderUnsigned(num, 55593553),
       num => Integer.remainderUnsigned(num, 3749),
       num => Integer.remainderUnsigned(num, 17),
@@ -765,7 +874,7 @@ object IntMicroDataSets {
       num => Integer.remainderUnsigned(num, 38),
   )
 
-  val randomSignedConstantDivsPow2 = Array[Int => Int](
+  val randomSignedConstantDivsPow2 = Array[IntToIntFun](
       num => num / 1073741824,
       num => num / 1048576,
       num => num / -1048576,
@@ -901,7 +1010,7 @@ abstract class IntMicro extends org.scalajs.benchmark.Benchmark {
  * Int micro-benchmarks for divisions by constants.
  */
 abstract class IntConstantDivRemMicro extends org.scalajs.benchmark.Benchmark {
-  @inline def doRun(randomAs: Array[Int => Int], randomBs: Array[Int]): Int = {
+  @inline def doRun(randomAs: Array[IntToIntFun], randomBs: Array[Int]): Int = {
     val alen = randomAs.length
     val blen = randomBs.length
     var result = 0
@@ -919,7 +1028,7 @@ abstract class IntConstantDivRemMicro extends org.scalajs.benchmark.Benchmark {
     result
   }
 
-  @inline def doRunAndCheck(randomAs: Array[Int => Int], randomBs: Array[Int], expectedResult: Int): Unit = {
+  @inline def doRunAndCheck(randomAs: Array[IntToIntFun], randomBs: Array[Int], expectedResult: Int): Unit = {
     val actual = doRun(randomAs, randomBs)
     if (actual != expectedResult)
       throw new Exception(s"expected $expectedResult but got $actual")
@@ -990,6 +1099,13 @@ object IntDiv30_8 extends IntMicro {
   }
 
   @inline def binaryOp(a: Int, b: Int): Int = a / b
+}
+
+object IntConstantDivAddBaseline extends IntConstantDivRemMicro {
+  override def prefix = "IntConstantDivAddBaseline"
+
+  @noinline def run(): Unit =
+    doRunAndCheck(randomConstantAdds, random32s, -141292512)
 }
 
 object IntSignedConstantDiv extends IntConstantDivRemMicro {
