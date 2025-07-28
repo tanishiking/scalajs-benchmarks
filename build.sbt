@@ -205,6 +205,7 @@ lazy val allProjects = Seq(
     queensJVM, queensJS,
     bignumsJVM, bignumsJS,
     mathMicroJVM, mathMicroJS,
+    arrayBuilderMicroJVM, arrayBuilderMicroJS,
 )
 
 lazy val common = crossProject(JSPlatform, JVMPlatform).
@@ -289,6 +290,13 @@ lazy val arrayBuilderMicro = autoConfig(crossProject(JSPlatform, JVMPlatform))
   )
 lazy val arrayBuilderMicroJVM = arrayBuilderMicro.jvm
 lazy val arrayBuilderMicroJS = arrayBuilderMicro.js
+
+lazy val copyonwritearraylistMicro = autoConfig(crossProject(JSPlatform, JVMPlatform))
+  .settings(
+    Compile / mainClass := Some("org.scalajs.benchmark.copyonwritearraylistmicro.CopyOnWriteArrayListMicroAll")
+  )
+lazy val copyonwritearraylistMicroJVM = copyonwritearraylistMicro.jvm
+lazy val copyonwritearraylistMicroJS = copyonwritearraylistMicro.js
 
 lazy val deltablueJSRef = autoConfigJSRef(project, "deltablue.js", "deltaBlue")
 lazy val richardsJSRef = autoConfigJSRef(project, "richards.js", "runRichards")
