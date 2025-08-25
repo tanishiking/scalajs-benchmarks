@@ -205,6 +205,7 @@ lazy val allProjects = Seq(
     queensJVM, queensJS,
     bignumsJVM, bignumsJS,
     mathMicroJVM, mathMicroJS,
+    sortedcollectionMicroJVM, sortedcollectionMicroJS,
 )
 
 lazy val common = crossProject(JSPlatform, JVMPlatform).
@@ -390,3 +391,10 @@ lazy val mathMicro = autoConfig(crossProject(JSPlatform, JVMPlatform))
   )
 lazy val mathMicroJVM = mathMicro.jvm
 lazy val mathMicroJS = mathMicro.js
+
+lazy val sortedcollectionMicro = autoConfig(crossProject(JSPlatform, JVMPlatform))
+  .settings(
+    Compile / mainClass := Some("org.scalajs.benchmark.sortedcollectionmicro.SortedCollectionMicro")
+  )
+lazy val sortedcollectionMicroJVM = sortedcollectionMicro.jvm
+lazy val sortedcollectionMicroJS = sortedcollectionMicro.js
