@@ -29,7 +29,9 @@ object IntMicroAll extends org.scalajs.benchmark.Benchmark {
       IntUnsignedConstantDiv,
       IntUnsignedConstantRem,
       IntSignedConstantDivPow2,
-      IntToString32
+      IntToString32,
+      IntToStringRadix8,
+      IntToStringRadix16
   )
 
   override def main(args: Array[String]): Unit = {
@@ -1229,4 +1231,26 @@ object IntToString32 extends IntMicro {
   }
 
   @inline def binaryOp(a: Int, b: Int): Int = java.lang.Integer.toString(a).length()
+}
+
+object IntToStringRadix8 extends IntMicro {
+  override def prefix = "IntToStringRadix8"
+
+  def run(): Unit = {
+    if (doRun(random32s, random32s) != 0)
+      throw new Exception("wrong result")
+  }
+
+  @inline def binaryOp(a: Int, b: Int): Int = java.lang.Integer.toString(a, 8).length()
+}
+
+object IntToStringRadix16 extends IntMicro {
+  override def prefix = "IntToStringRadix16"
+
+  def run(): Unit = {
+    if (doRun(random32s, random32s) != 0)
+      throw new Exception("wrong result")
+  }
+
+  @inline def binaryOp(a: Int, b: Int): Int = java.lang.Integer.toString(a, 16).length()
 }

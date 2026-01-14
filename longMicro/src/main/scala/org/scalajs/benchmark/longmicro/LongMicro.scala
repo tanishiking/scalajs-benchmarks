@@ -29,7 +29,9 @@ object LongMicroAll extends org.scalajs.benchmark.Benchmark {
       LongSignedConstantDivPow2,
       LongToString32,
       LongToString53,
-      LongToString64
+      LongToString64,
+      LongToStringRadix8,
+      LongToStringRadix16
   )
 
   override def main(args: Array[String]): Unit = {
@@ -1437,4 +1439,26 @@ object LongToString64 extends LongMicro {
   }
 
   @inline def binaryOp(a: Long, b: Long): Long = java.lang.Long.toString(a).length()
+}
+
+object LongToStringRadix8 extends LongMicro {
+  override def prefix = "LongToStringRadix8"
+
+  def run(): Unit = {
+    if (doRun(random64s, random64s) != 0L)
+      throw new Exception("wrong result")
+  }
+
+  @inline def binaryOp(a: Long, b: Long): Long = java.lang.Long.toString(a, 8).length()
+}
+
+object LongToStringRadix16 extends LongMicro {
+  override def prefix = "LongToStringRadix16"
+
+  def run(): Unit = {
+    if (doRun(random64s, random64s) != 0L)
+      throw new Exception("wrong result")
+  }
+
+  @inline def binaryOp(a: Long, b: Long): Long = java.lang.Long.toString(a, 16).length()
 }
