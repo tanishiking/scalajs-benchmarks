@@ -38,7 +38,7 @@ ThisBuild / jsEnv := {
     new NodeJSEnv(NodeJSEnv.Config().withArgs(List(
       "--experimental-wasm-exnref",
       "--experimental-wasm-imported-strings",
-      "--turboshaft-wasm"
+      // "--turboshaft-wasm"
     )))
   } else {
     default
